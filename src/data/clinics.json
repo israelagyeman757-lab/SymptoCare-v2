@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0",
+  "country": "GH",
+  "data_status": "starter_list_unverified",
+  "notes": "Facility names, cities and types come from general knowledge, not from an official register. Phone numbers, coordinates, opening hours and services are deliberately left out because they must be confirmed from official sources (Ghana Health Service, the facility itself). The app must never show these as verified or guarantee a facility is open or offers a service.",
+  "regions": [
+    {
+      "id": "greater-accra",
+      "name": "Greater Accra",
+      "capital": "Accra",
+      "clinics": [
+        { "id": "korle-bu-teaching-hospital", "name": "Korle Bu Teaching Hospital", "city": "Accra", "type": "teaching_hospital", "verified": false },
+        { "id": "ridge-hospital", "name": "Greater Accra Regional Hospital (Ridge Hospital)", "city": "Accra", "type": "regional_hospital", "verified": false }
+      ]
+    },
+    {
+      "id": "ashanti",
+      "name": "Ashanti",
+      "capital": "Kumasi",
+      "clinics": [
+        { "id": "komfo-anokye-teaching-hospital", "name": "Komfo Anokye Teaching Hospital", "city": "Kumasi", "type": "teaching_hospital", "verified": false },
+        { "id": "manhyia-district-hospital", "name": "Manhyia District Hospital", "city": "Kumasi", "type": "district_hospital", "verified": false }
+      ]
+    },
+    {
+      "id": "central",
+      "name": "Central",
+      "capital": "Cape Coast",
+      "clinics": [
+        { "id": "cape-coast-teaching-hospital", "name": "Cape Coast Teaching Hospital", "city": "Cape Coast", "type": "teaching_hospital", "verified": false },
+        { "id": "cape-coast-metropolitan-hospital", "name": "Cape Coast Metropolitan Hospital", "city": "Cape Coast", "type": "metropolitan_hospital", "verified": false }
+      ]
+    },
+    {
+      "id": "western",
+      "name": "Western",
+      "capital": "Sekondi-Takoradi",
+      "clinics": [
+        { "id": "effia-nkwanta-regional-hospital", "name": "Effia Nkwanta Regional Hospital", "city": "Sekondi-Takoradi", "type": "regional_hospital", "verified": false },
+        { "id": "takoradi-hospital", "name": "Takoradi Hospital", "city": "Takoradi", "type": "district_hospital", "verified": false }
+      ]
+    },
+    {
+      "id": "northern",
+      "name": "Northern",
+      "capital": "Tamale",
+      "clinics": [
+        { "id": "tamale-teaching-hospital", "name": "Tamale Teaching Hospital", "city": "Tamale", "type": "teaching_hospital", "verified": false },
+        { "id": "tamale-west-hospital", "name": "Tamale West Hospital", "city": "Tamale", "type": "district_hospital", "verified": false }
+      ]
+    },
+    {
+      "id": "volta",
+      "name": "Volta",
+      "capital": "Ho",
+      "clinics": [
+        { "id": "ho-teaching-hospital", "name": "Ho Teaching Hospital", "city": "Ho", "type": "teaching_hospital", "verified": false },
+        { "id": "ho-municipal-hospital", "name": "Ho Municipal Hospital", "city": "Ho", "type": "municipal_hospital", "verified": false }
+      ]
+    },
+    {
+      "id": "eastern",
+      "name": "Eastern",
+      "capital": "Koforidua",
+      "clinics": [
+        { "id": "eastern-regional-hospital", "name": "Eastern Regional Hospital", "city": "Koforidua", "type": "regional_hospital", "verified": false },
+        { "id": "st-joseph-hospital-koforidua", "name": "St. Joseph Hospital", "city": "Koforidua", "type": "mission_hospital", "verified": false }
+      ]
+    },
+    {
+      "id": "bono",
+      "name": "Bono",
+      "capital": "Sunyani",
+      "clinics": [
+        { "id": "sunyani-regional-hospital", "name": "Sunyani Regional Hospital", "city": "Sunyani", "type": "regional_hospital", "verified": false },
+        { "id": "sunyani-municipal-hospital", "name": "Sunyani Municipal Hospital", "city": "Sunyani", "type": "municipal_hospital", "verified": false }
+      ]
+    },
+    {
+      "id": "upper-east",
+      "name": "Upper East",
+      "capital": "Bolgatanga",
+      "clinics": [
+        { "id": "upper-east-regional-hospital", "name": "Upper East Regional Hospital", "city": "Bolgatanga", "type": "regional_hospital", "verified": false },
+        { "id": "navrongo-war-memorial-hospital", "name": "War Memorial Hospital", "city": "Navrongo", "type": "district_hospital", "verified": false }
+      ]
+    },
+    {
+      "id": "upper-west",
+      "name": "Upper West",
+      "capital": "Wa",
+      "clinics": [
+        { "id": "upper-west-regional-hospital", "name": "Upper West Regional Hospital", "city": "Wa", "type": "regional_hospital", "verified": false },
+        { "id": "wa-municipal-hospital", "name": "Wa Municipal Hospital", "city": "Wa", "type": "municipal_hospital", "verified": false }
+      ]
+    }
+  ]
+}

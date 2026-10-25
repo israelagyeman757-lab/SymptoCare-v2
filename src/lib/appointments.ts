@@ -113,6 +113,10 @@ export async function saveRequest(input: {
   clinicId: string | null;
 }): Promise<AppointmentRequest> {
   if (!supabaseConfigured || !supabase) throw mapError(null);
+  const clinicId =
+    input.clinicId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.clinicId)
+      ? input.clinicId
+      : null;
   const { data, error } = await supabase
     .from('appointment_requests')
     .insert({
@@ -121,7 +125,7 @@ export async function saveRequest(input: {
       preferred_time: input.preferredTime,
       reason: input.reason.trim() || null,
       region: input.region,
-      clinic_id: input.clinicId || null,
+      clinic_id: clinicId,
     })
     .select()
     .single();
