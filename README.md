@@ -27,7 +27,7 @@ React 18 · TypeScript · Vite · Tailwind CSS · React Router · Zustand · Sup
 - Node.js 20+
 - A Supabase project (see below)
 - A GhanaNLP API subscription key (for Twi translation)
-- A Google Gemini API key (for the "Ask a health question" assistant)
+- A Google Gemma API key (for the "Ask" assistant and photo search)
 
 ## Environment variables
 
@@ -49,7 +49,7 @@ Set with the Supabase CLI (`supabase secrets set NAME=value`) or in the dashboar
 ```bash
 GHANA_NLP_KEY=...        # GhanaNLP Ocp-Apim-Subscription-Key (required for Twi translation)
 BRAVE_SEARCH_API_KEY=... # Brave Search API key (required for "Search the web")
-GEMINI_API_KEY=...       # Google Gemini API key (required for the "Ask" assistant; gemma-chat function)
+GEMMA_API_KEY=...        # Google AI API key (required for Gemma text + vision: gemma-chat and medicine-photo)
 ALLOWED_ORIGIN=https://yourapp.example   # required by translate-content and search-content for CORS
 ```
 
@@ -93,7 +93,7 @@ other origin are rejected by the Edge Functions. `SUPABASE_URL` and
    supabase functions deploy medicine-photo
    supabase secrets set GHANA_NLP_KEY=...
    supabase secrets set BRAVE_SEARCH_API_KEY=...
-   supabase secrets set GEMINI_API_KEY=...
+   supabase secrets set GEMMA_API_KEY=...
    supabase secrets set ALLOWED_ORIGIN=https://yourapp.example
    ```
 

@@ -54,7 +54,7 @@ serve(async (req: Request) => {
     const { data: userData, error: userError } = await supabase.auth.getUser(token);
     if (userError || !userData.user) return json({ error: "Unauthorized" }, 401);
 
-    const key = Deno.env.get("GEMINI_API_KEY");
+    const key = Deno.env.get("GEMMA_API_KEY");
     if (!key) {
       return json({ status: "unavailable", answer: "", reason: "not_configured" }, 200);
     }
@@ -71,7 +71,7 @@ serve(async (req: Request) => {
 
     const model = Deno.env.get("GEMMA_MODEL") ?? "gemma-4-26b-a4b-it";
     const endpoint =
-      Deno.env.get("GEMINI_API_URL") ??
+      Deno.env.get("GEMMA_API_URL") ??
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     const upstream = await fetch(endpoint, {
