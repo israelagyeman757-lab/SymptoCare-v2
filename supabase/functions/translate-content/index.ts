@@ -36,7 +36,7 @@ serve(async (req: Request) => {
 
     if (!text) return json({ error: "Missing 'text'" }, 400);
     if (target !== "tw") return json({ error: "Unsupported target language" }, 400);
-    if (text.length > 1500) return json({ error: "Text too long" }, 413);
+    if (text.length > 1000) return json({ error: "Text too long" }, 413);
 
     const authorization = req.headers.get("Authorization") ?? "";
     const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
@@ -70,17 +70,18 @@ serve(async (req: Request) => {
     }
     if (requestCount > 30) return json({ error: "Rate limit exceeded" }, 429);
 
-    const upstream = await fetch("https://translation-api.ghananlp.org/v1/translate", {
+    const upstream = await fetch("https://translation-api.ghananlp.org/v2/translate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Ocp-Apim-Subscription-Key": key,
       },
-      body: JSON.stringify({ in: text, lang: "en-tw" }),
+      body: JSON.stringify({ in: text, lang: "eng-twi" }),
       signal: AbortSignal.timeout(15000),
     });
 
     if (!upstream.ok) {
+      console.error("translate-content upstream status", upstream.status, (await upstream.text()).slice(0, 300));
       return json(
         { sourceLanguage: "en", targetLanguage: "tw", translatedText: "", status: "unavailable", reviewed: false, reason: `upstream_${upstream.status}` },
         200
