@@ -114,7 +114,10 @@ export default function AuthScreen() {
         const { data, error: signupError } = await supabase.auth.signUp({
           email: email.trim(),
           password,
-          options: { data: { full_name: fullName.trim() } },
+          options: {
+            data: { full_name: fullName.trim() },
+            emailRedirectTo: `${window.location.origin}/auth`,
+          },
         });
         if (signupError) {
           setError(mapAuthError(signupError.message, t));
