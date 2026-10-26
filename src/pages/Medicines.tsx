@@ -1,13 +1,25 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Pill, Loader2, Camera, Globe, ChevronRight } from 'lucide-react';
 import { searchMedicines, suggestExamples, type SearchResult } from '@/lib/medicines';
+import { identifyMedicineFromPhoto } from '@/lib/medicinePhoto';
+import { askGemma } from '@/lib/gemma';
 import { useI18n } from '@/i18n/useI18n';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
+import { WebSearchSection } from '@/components/shared/WebSearchSection';
+
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function Medicines() {
   const { t } = useI18n();
@@ -15,20 +27,69 @@ export default function Medicines() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
 
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoError, setPhotoError] = useState(false);
+  const [notFoundName, setNotFoundName] = useState<string | null>(null);
+  const [aiSummary, setAiSummary] = useState('');
+  const [aiBusy, setAiBusy] = useState(false);
+
+  const showNotFound = (name: string) => {
+    setNotFoundName(name);
+    setAiSummary('');
+    setAiBusy(true);
+    askGemma(
+      `What is ${name}? Give a short, general, educational answer for Ghana. Do not prescribe or diagnose.`
+    ).then((r) => {
+      setAiBusy(false);
+      if (r.status === 'available') setAiSummary(r.answer);
+    });
+  };
+
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
     setBusy(true);
-    // Local search is fast; a short delay keeps the loading state perceivable
+    setPhotoError(false);
+    setNotFoundName(null);
     window.setTimeout(() => {
-      setResult(searchMedicines(query));
+      const res = searchMedicines(query);
+      setResult(res);
       setBusy(false);
+      if (res.status === 'not_found') showNotFound(query.trim());
     }, 300);
   };
 
   const runExample = (example: string) => {
     setQuery(example);
+    setNotFoundName(null);
     setResult(searchMedicines(example));
+  };
+
+  const onPhotoSelected = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setPhotoBusy(true);
+    setPhotoError(false);
+    setNotFoundName(null);
+    setResult(null);
+    try {
+      const dataUrl = await readAsDataUrl(file);
+      const base64 = dataUrl.split(',')[1] ?? '';
+      const photo = await identifyMedicineFromPhoto(base64, file.type || 'image/jpeg');
+      if (photo.status === 'available' && photo.name) {
+        const res = searchMedicines(photo.name);
+        setResult(res);
+        if (res.status === 'not_found') showNotFound(photo.name);
+      } else {
+        setPhotoError(true);
+      }
+    } catch {
+      setPhotoError(true);
+    } finally {
+      setPhotoBusy(false);
+    }
   };
 
   return (
@@ -70,28 +131,45 @@ export default function Medicines() {
       </div>
 
       <section aria-live="polite" className="mt-6 space-y-3">
-        {busy && (
+        {(busy || photoBusy) && (
           <Card>
             <CardContent className="flex items-center gap-3 p-5 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-              {t('common.loading')}
+              {photoBusy ? t('medicines.photoIdentifying') : t('common.loading')}
             </CardContent>
           </Card>
         )}
 
-        {!busy && result && result.status === 'not_found' && (
-          <>
-            <Alert variant="warning">
-              <p className="font-bold">{t('medicines.noResults')}</p>
-              <p className="mt-1">{t('medicines.noResultsHint')}</p>
-            </Alert>
-            <Alert>
-              <p className="font-bold">{t('medicines.askPharmacist')}</p>
-            </Alert>
-          </>
+        {!busy && !photoBusy && photoError && (
+          <Alert variant="warning">
+            <p>{t('medicines.photoUnreadable')}</p>
+          </Alert>
         )}
 
-        {!busy && result && result.results.length > 0 && (
+        {!busy && !photoBusy && result && result.status === 'not_found' && notFoundName && (
+          <Card>
+            <CardContent className="space-y-4 p-5">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-lg font-bold">{notFoundName}</h2>
+                <Badge variant="warning">{t('medicines.notInList')}</Badge>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wide text-clay">{t('medicines.aiSummary')}</p>
+                {aiBusy ? (
+                  <p className="mt-1 text-sm text-muted-foreground">{t('common.loading')}</p>
+                ) : aiSummary ? (
+                  <p className="mt-1 text-sm leading-relaxed">{aiSummary}</p>
+                ) : (
+                  <p className="mt-1 text-sm text-muted-foreground">{t('gemma.unavailable')}</p>
+                )}
+              </div>
+              <WebSearchSection initialQuery={notFoundName} />
+              <p className="text-xs text-muted-foreground">{t('medicines.askPharmacist')}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {!busy && !photoBusy && result && result.results.length > 0 && (
           <>
             <p className="text-sm text-muted-foreground">
               {t('medicines.resultsFor')} “{result.query}” — {t('medicines.resultCount', { count: result.results.length })}
@@ -122,7 +200,7 @@ export default function Medicines() {
           </>
         )}
 
-        {!busy && !result && (
+        {!busy && !photoBusy && !result && !notFoundName && (
           <div className="grid gap-3 sm:grid-cols-2">
             <Card>
               <CardContent className="p-5">
@@ -130,7 +208,23 @@ export default function Medicines() {
                   <Camera className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                   {t('medicines.photoSearchTitle')}
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">{t('medicines.photoSearchUnavailable')}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-3"
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <Camera className="h-4 w-4" aria-hidden="true" />
+                  {t('medicines.photoSearchAction')}
+                </Button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="sr-only"
+                  onChange={onPhotoSelected}
+                />
               </CardContent>
             </Card>
             <Card>
