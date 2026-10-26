@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Stethoscope, Pill, CalendarDays, BookOpen, HeartPulse, Siren, ChevronRight } from 'lucide-react';
+import { Siren, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/i18n/useI18n';
 import { facilityTranslationKey, listRequests, type AppointmentRequest } from '@/lib/appointments';
@@ -63,14 +63,6 @@ export default function Dashboard() {
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) || user?.email?.split('@')[0] || '';
 
-  const quickLinks = [
-    { to: '/symptoms', label: t('dashboard.symptoms'), icon: Stethoscope },
-    { to: '/medicines', label: t('dashboard.medicines'), icon: Pill },
-    { to: '/appointments', label: t('dashboard.appointments'), icon: CalendarDays },
-    { to: '/education', label: t('dashboard.education'), icon: BookOpen },
-    { to: '/first-aid', label: t('dashboard.firstAid'), icon: HeartPulse },
-  ];
-
   return (
     <div className="container max-w-3xl py-8">
       <p className="text-sm font-bold uppercase tracking-wide text-clay">
@@ -81,67 +73,52 @@ export default function Dashboard() {
         {t('dashboard.howAreYou')}
       </h1>
 
-      {(requests.length > 0 || recentMedicine) && (
-        <section aria-labelledby="continue-heading" className="mt-8">
-          <h2 id="continue-heading" className="text-xl font-bold">
-            {t('dashboard.continueTitle')}
-          </h2>
-          <ul className="mt-3 divide-y divide-border overflow-hidden rounded-xl border bg-card shadow-sm">
-            {requests[0] && (
-              <li>
-                <Link to="/appointments" className="flex items-center justify-between gap-3 p-4 transition-colors hover:bg-muted">
-                  <span className="min-w-0">
-                    <span className="block text-xs font-bold uppercase tracking-wide text-clay">
-                      {t('nav.appointments')}
-                    </span>
-                    <span className="block truncate font-semibold">
-                      {requests[0].clinicName ?? facilityLabel(requests[0].facilityType)}
-                    </span>
-                    <span className="block text-sm text-muted-foreground">{requests[0].preferredDate}</span>
-                  </span>
-                  <Badge variant="warning">{t('appointments.status.requested')}</Badge>
-                </Link>
-              </li>
-            )}
-            {recentMedicine && (
-              <li>
-                <Link
-                  to={`/medicines/${recentMedicine.code}`}
-                  className="flex items-center justify-between gap-3 p-4 transition-colors hover:bg-muted"
-                >
-                  <span className="min-w-0">
-                    <span className="block text-xs font-bold uppercase tracking-wide text-clay">
-                      {t('nav.medicines')}
-                    </span>
-                    <span className="block truncate font-semibold">{recentMedicine.name}</span>
-                  </span>
-                  <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
-                </Link>
-              </li>
-            )}
-          </ul>
-        </section>
-      )}
-
-      <section aria-labelledby="quick-access-heading" className="mt-8">
-        <h2 id="quick-access-heading" className="text-lg font-bold">
-          {t('dashboard.quickAccess')}
+      <section aria-labelledby="continue-heading" className="mt-8">
+        <h2 id="continue-heading" className="text-xl font-bold">
+          {t('dashboard.continueTitle')}
         </h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {quickLinks.map(({ to, label, icon: Icon }) => (
-            <Link
-              key={to}
-              to={to}
-              className="flex items-center gap-3 rounded-xl border bg-card p-4 shadow-sm transition-colors hover:bg-muted"
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
-              </div>
-              <span className="flex-1 font-semibold">{label}</span>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-            </Link>
-          ))}
-        </div>
+        <ul className="mt-3 divide-y divide-border overflow-hidden rounded-xl border bg-card shadow-sm">
+          {requests[0] && (
+            <li>
+              <Link to="/appointments" className="flex items-center justify-between gap-3 p-4 transition-colors hover:bg-muted">
+                <span className="min-w-0">
+                  <span className="block text-xs font-bold uppercase tracking-wide text-clay">
+                    {t('nav.appointments')}
+                  </span>
+                  <span className="block truncate font-semibold">
+                    {requests[0].clinicName ?? facilityLabel(requests[0].facilityType)}
+                  </span>
+                  <span className="block text-sm text-muted-foreground">{requests[0].preferredDate}</span>
+                </span>
+                <Badge variant="warning">{t('appointments.status.requested')}</Badge>
+              </Link>
+            </li>
+          )}
+          {recentMedicine && (
+            <li>
+              <Link
+                to={`/medicines/${recentMedicine.code}`}
+                className="flex items-center justify-between gap-3 p-4 transition-colors hover:bg-muted"
+              >
+                <span className="min-w-0">
+                  <span className="block text-xs font-bold uppercase tracking-wide text-clay">
+                    {t('nav.medicines')}
+                  </span>
+                  <span className="block truncate font-semibold">{recentMedicine.name}</span>
+                </span>
+                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+              </Link>
+            </li>
+          )}
+          {!loading && !requests[0] && !recentMedicine && (
+            <li className="p-4 text-sm text-muted-foreground">
+              {t('dashboard.continueEmpty')}{' '}
+              <Link to="/appointments" className="font-semibold text-primary hover:underline">
+                {t('nav.appointments')}
+              </Link>
+            </li>
+          )}
+        </ul>
       </section>
 
       <section aria-labelledby="ask-heading" className="mt-8">

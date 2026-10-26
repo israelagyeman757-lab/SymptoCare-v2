@@ -14,13 +14,8 @@ const SYSTEM_INSTRUCTION =
   "Answer in plain, short English using only widely accepted general information. " +
   "You must never give a diagnosis, prescribe or recommend medicine, or replace a doctor, pharmacist, or emergency services. " +
   "If the question is about an emergency, severe symptoms, or someone who is seriously ill or injured, tell them to call 112 or go to the nearest health facility immediately. " +
-  "If you are not sure, say so.";
-
-interface GemmaResult {
-  status: "available" | "unavailable";
-  answer: string;
-  reason?: string;
-}
+  "If you are not sure, say so. " +
+  "When web search results are supplied, use only those results and do not add facts that are missing from them.";
 
 serve(async (req: Request) => {
   if (!allowedOrigin) return json({ error: "ALLOWED_ORIGIN is not configured" }, 503);
@@ -38,7 +33,7 @@ serve(async (req: Request) => {
     const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
 
     if (!prompt) return json({ error: "Missing 'prompt'" }, 400);
-    if (prompt.length > 500) return json({ error: "Prompt too long" }, 413);
+    if (prompt.length > 4000) return json({ error: "Prompt too long" }, 413);
 
     const authorization = req.headers.get("Authorization") ?? "";
     const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
@@ -69,7 +64,28 @@ serve(async (req: Request) => {
     }
     if (requestCount > 30) return json({ error: "Rate limit exceeded" }, 429);
 
-    const model = Deno.env.get("GEMMA_MODEL") ?? "gemma-4-26b-a4b-it";
+    const primaryModel = Deno.env.get("GEMMA_MODEL") ?? "gemini-3.5-flash-lite";
+    const fallbackModel = Deno.env.get("GEMMA_FALLBACK_MODEL") ?? "gemma-4-26b-a4b-it";
+
+    let answer = "";
+    for (const model of [primaryModel, fallbackModel]) {
+      answer = await requestAnswer(model, key, prompt);
+      if (answer) break;
+    }
+
+    if (!answer) {
+      return json({ status: "unavailable", answer: "", reason: "model_unavailable" }, 200);
+    }
+
+    return json({ status: "available", answer }, 200);
+  } catch (err) {
+    console.error("gemma-chat request failed", err);
+    return json({ status: "unavailable", answer: "", reason: "internal_error" }, 200);
+  }
+});
+
+async function requestAnswer(model: string, key: string, prompt: string): Promise<string> {
+  try {
     const endpoint =
       Deno.env.get("GEMMA_API_URL") ??
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -83,14 +99,14 @@ serve(async (req: Request) => {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.4, maxOutputTokens: 500 },
+        generationConfig: { temperature: 0.4, maxOutputTokens: 1200 },
       }),
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(45000),
     });
 
     if (!upstream.ok) {
-      console.error("gemma-chat upstream status", upstream.status);
-      return json({ status: "unavailable", answer: "", reason: `upstream_${upstream.status}` }, 200);
+      console.error("gemma-chat upstream status", model, upstream.status);
+      return "";
     }
 
     const raw = (await upstream.json()) as {
@@ -98,22 +114,16 @@ serve(async (req: Request) => {
     } | null;
 
     const parts = raw?.candidates?.[0]?.content?.parts ?? [];
-    const answer = parts
+    return parts
       .filter((p) => !p.thought)
       .map((p) => (typeof p.text === "string" ? p.text : ""))
       .join("")
       .trim();
-
-    if (!answer) {
-      return json({ status: "unavailable", answer: "", reason: "empty_result" }, 200);
-    }
-
-    return json({ status: "available", answer }, 200);
   } catch (err) {
-    console.error("gemma-chat request failed", err);
-    return json({ status: "unavailable", answer: "", reason: "internal_error" }, 200);
+    console.error("gemma-chat model call failed", model, err);
+    return "";
   }
-});
+}
 
 function json(payload: unknown, status: number): Response {
   return new Response(JSON.stringify(payload), {

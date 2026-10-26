@@ -4,13 +4,14 @@ import { Search, Pill, Loader2, Camera, Globe, ChevronRight } from 'lucide-react
 import { searchMedicines, suggestExamples, type SearchResult } from '@/lib/medicines';
 import { identifyMedicineFromPhoto } from '@/lib/medicinePhoto';
 import { askGemma } from '@/lib/gemma';
+import { searchWeb, type WebSearchResult } from '@/lib/search';
 import { useI18n } from '@/i18n/useI18n';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
-import { WebSearchSection } from '@/components/shared/WebSearchSection';
+import { WebResultsList } from '@/components/shared/WebResultsList';
 
 function readAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -33,17 +34,28 @@ export default function Medicines() {
   const [notFoundName, setNotFoundName] = useState<string | null>(null);
   const [aiSummary, setAiSummary] = useState('');
   const [aiBusy, setAiBusy] = useState(false);
+  const [webResults, setWebResults] = useState<WebSearchResult[]>([]);
 
-  const showNotFound = (name: string) => {
+  const showNotFound = async (name: string) => {
     setNotFoundName(name);
     setAiSummary('');
+    setWebResults([]);
     setAiBusy(true);
-    askGemma(
-      `What is ${name}? Give a short, general, educational answer for Ghana. Do not prescribe or diagnose.`
-    ).then((r) => {
-      setAiBusy(false);
-      if (r.status === 'available') setAiSummary(r.answer);
-    });
+
+    const outcome = await searchWeb(`${name} medicine uses`);
+    const results = outcome.status === 'available' ? outcome.results.slice(0, 4) : [];
+    setWebResults(results);
+
+    const context = results
+      .map((r, i) => `[${i + 1}] ${r.title}: ${r.description}`.slice(0, 400))
+      .join('\n');
+    const prompt = context
+      ? `Using only these web search results, summarise ${name} for a general audience in Ghana in 3 short sentences: what it is commonly used for and one safety point. Do not prescribe, do not give doses, and do not diagnose.\n\n${context}`
+      : `What is ${name}? Give a short, general, educational answer for Ghana. Do not prescribe or diagnose.`;
+
+    const r = await askGemma(prompt);
+    setAiBusy(false);
+    if (r.status === 'available') setAiSummary(r.answer);
   };
 
   const submit = (e: FormEvent) => {
@@ -56,7 +68,7 @@ export default function Medicines() {
       const res = searchMedicines(query);
       setResult(res);
       setBusy(false);
-      if (res.status === 'not_found') showNotFound(query.trim());
+      if (res.status === 'not_found') void showNotFound(query.trim());
     }, 300);
   };
 
@@ -81,7 +93,7 @@ export default function Medicines() {
       if (photo.status === 'available' && photo.name) {
         const res = searchMedicines(photo.name);
         setResult(res);
-        if (res.status === 'not_found') showNotFound(photo.name);
+        if (res.status === 'not_found') void showNotFound(photo.name);
       } else {
         setPhotoError(true);
       }
@@ -156,14 +168,14 @@ export default function Medicines() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-clay">{t('medicines.aiSummary')}</p>
                 {aiBusy ? (
-                  <p className="mt-1 text-sm text-muted-foreground">{t('common.loading')}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('medicines.searchingSources')}</p>
                 ) : aiSummary ? (
                   <p className="mt-1 text-sm leading-relaxed">{aiSummary}</p>
                 ) : (
                   <p className="mt-1 text-sm text-muted-foreground">{t('gemma.unavailable')}</p>
                 )}
               </div>
-              <WebSearchSection initialQuery={notFoundName} />
+              <WebResultsList results={webResults} />
               <p className="text-xs text-muted-foreground">{t('medicines.askPharmacist')}</p>
             </CardContent>
           </Card>

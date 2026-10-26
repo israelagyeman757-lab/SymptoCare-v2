@@ -71,7 +71,28 @@ serve(async (req: Request) => {
     }
     if (requestCount > 30) return json({ error: "Rate limit exceeded" }, 429);
 
-    const model = Deno.env.get("MEDICINE_PHOTO_MODEL") ?? "gemma-4-26b-a4b-it";
+    const primaryModel = Deno.env.get("MEDICINE_PHOTO_MODEL") ?? "gemini-3.5-flash-lite";
+    const fallbackModel = Deno.env.get("MEDICINE_PHOTO_FALLBACK_MODEL") ?? "gemma-4-26b-a4b-it";
+
+    let name = "";
+    for (const model of [primaryModel, fallbackModel]) {
+      name = await readName(model, key, image, mimeType);
+      if (name) break;
+    }
+
+    if (!name || /UNREADABLE/i.test(name)) {
+      return json({ status: "unavailable", name: "", reason: "unreadable" }, 200);
+    }
+
+    return json({ status: "available", name }, 200);
+  } catch (err) {
+    console.error("medicine-photo request failed", err);
+    return json({ status: "unavailable", name: "", reason: "internal_error" }, 200);
+  }
+});
+
+async function readName(model: string, key: string, image: string, mimeType: string): Promise<string> {
+  try {
     const endpoint =
       Deno.env.get("GEMMA_API_URL") ??
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -86,20 +107,17 @@ serve(async (req: Request) => {
         contents: [
           {
             role: "user",
-            parts: [
-              { text: PROMPT },
-              { inlineData: { mimeType, data: image } },
-            ],
+            parts: [{ text: PROMPT }, { inlineData: { mimeType, data: image } }],
           },
         ],
-        generationConfig: { temperature: 0, maxOutputTokens: 64 },
+        generationConfig: { temperature: 0, maxOutputTokens: 500 },
       }),
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(45000),
     });
 
     if (!upstream.ok) {
-      console.error("medicine-photo upstream status", upstream.status);
-      return json({ status: "unavailable", name: "", reason: `upstream_${upstream.status}` }, 200);
+      console.error("medicine-photo upstream status", model, upstream.status);
+      return "";
     }
 
     const raw = (await upstream.json()) as {
@@ -107,22 +125,16 @@ serve(async (req: Request) => {
     } | null;
 
     const parts = raw?.candidates?.[0]?.content?.parts ?? [];
-    const name = parts
+    return parts
       .filter((p) => !p.thought)
       .map((p) => (typeof p.text === "string" ? p.text : ""))
       .join("")
       .trim();
-
-    if (!name || /UNREADABLE/i.test(name)) {
-      return json({ status: "unavailable", name: "", reason: "unreadable" }, 200);
-    }
-
-    return json({ status: "available", name }, 200);
   } catch (err) {
-    console.error("medicine-photo request failed", err);
-    return json({ status: "unavailable", name: "", reason: "internal_error" }, 200);
+    console.error("medicine-photo model call failed", model, err);
+    return "";
   }
-});
+}
 
 function json(payload: unknown, status: number): Response {
   return new Response(JSON.stringify(payload), {

@@ -15,8 +15,8 @@ doctor, pharmacist, or emergency services, and it never prescribes medicine.
 - Appointment **requests** (requests, not confirmed bookings), stored in the database with Row-Level Security
 - Region → clinic selection for appointments (clinics load from the `clinics` table; a region must be chosen before a clinic)
 - Optional "Search the web" for symptom guidance and medicine details via a server-side Brave Search call (results are labelled as unreviewed web content)
-- Educational "Ask a health question" assistant powered by a server-side Google Gemma model (labelled educational-only, never diagnostic)
-- "Search with a photo": reads a medicine name from a photo (server-side Gemma model), then looks it up locally — or, if it's not in the list, shows an educational summary plus unreviewed web results
+- Educational "Ask a health question" assistant powered by a server-side Google model (Gemini 3.5 Flash Lite with a Gemma fallback; labelled educational-only, never diagnostic)
+- "Search with a photo": reads a medicine name from a photo (server-side model), then looks it up locally — or, if it is not in the list, searches the web automatically and shows an educational summary with its sources
 - Reviewed-style first-aid / CPR and health-education content (flagged as awaiting clinical review)
 
 ## Tech stack
@@ -54,17 +54,20 @@ GEMMA_API_KEY=...        # Google AI API key (Gemma text + vision: gemma-chat, m
 ALLOWED_ORIGIN=https://yourapp.example   # required by every Edge Function for CORS
 ```
 
-Optional model overrides for `symptom-chat` (defaults shown):
+Optional model overrides (defaults shown):
 
 ```bash
-SYMPTOM_CHAT_MODEL=gemini-3.6-flash
-SYMPTOM_CHAT_FALLBACK_MODEL=gemini-3.5-flash-lite
-SYMPTOM_CHAT_LAST_RESORT_MODEL=gemma-4-26b-a4b-it
+GEMMA_MODEL=gemini-3.5-flash-lite            # "Ask a health question"
+GEMMA_FALLBACK_MODEL=gemma-4-26b-a4b-it
+SYMPTOM_CHAT_MODEL=gemini-3.5-flash-lite     # free-text symptom assistant
+SYMPTOM_CHAT_FALLBACK_MODEL=gemma-4-26b-a4b-it
+MEDICINE_PHOTO_MODEL=gemini-3.5-flash-lite   # photo → medicine name
+MEDICINE_PHOTO_FALLBACK_MODEL=gemma-4-26b-a4b-it
 ```
 
-The free tier of `gemini-3.6-flash` allows only 20 requests per day, so the function
-falls back to the lite model and then Gemma; when every model is unavailable it
-returns an honest "unavailable" result instead of guessing.
+The lite model is the default because the free tier meters `gemini-3.6-flash` at
+**20 requests per day**; Gemma is the fallback. When every model is unavailable the
+function returns an honest "unavailable" result instead of guessing.
 
 `ALLOWED_ORIGIN` is the exact origin the frontend is served from. Requests from any
 other origin are rejected by the Edge Functions. `SUPABASE_URL` and
@@ -161,7 +164,7 @@ Machine-translated Twi is always labelled "not clinically reviewed".
 
 - **Appointments are requests, not confirmed bookings.** A provider confirmation workflow does not exist yet; the `status` column reserves `confirmed` for it.
 - **Web search fallback** calls the Brave Search API server-side. Results are labelled as unreviewed external web content, never as medical advice.
-- **The "Ask a health question" assistant** calls a Google Gemma model server-side and is constrained to general, educational answers. It is not clinically reviewed and must never be treated as a diagnosis or medical advice; the UI labels it accordingly.
+- **The "Ask a health question" assistant** calls a Google model server-side (Gemini 3.5 Flash Lite, with Gemma as fallback) and is constrained to general, educational answers. It is not clinically reviewed and must never be treated as a diagnosis or medical advice; the UI labels it accordingly.
 - **Medicine photo search** reads a name from a photo via a server-side Gemma model (`gemma-4-26b-a4b-it` by default, overridable with the `MEDICINE_PHOTO_MODEL` secret). The same Gemma model powers the "Ask" assistant, so no Gemini model is required. When the name isn't in the local list, the app shows an educational Gemma summary plus unreviewed Brave web results.
 - **Twi text-to-speech** is intentionally not implemented.
 - Medicine records come from the NHIS Medicines List (2017) and are flagged "needs review"; the list is not a live availability feed.

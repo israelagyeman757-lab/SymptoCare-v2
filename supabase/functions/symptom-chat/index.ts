@@ -115,12 +115,11 @@ serve(async (req: Request) => {
 
     const assistantTurns = messages.filter((m) => m.role === "model").length + 1;
 
-    const primaryModel = Deno.env.get("SYMPTOM_CHAT_MODEL") ?? "gemini-3.6-flash";
-    const fallbackModel = Deno.env.get("SYMPTOM_CHAT_FALLBACK_MODEL") ?? "gemini-3.5-flash-lite";
-    const lastResortModel = Deno.env.get("SYMPTOM_CHAT_LAST_RESORT_MODEL") ?? "gemma-4-26b-a4b-it";
+    const primaryModel = Deno.env.get("SYMPTOM_CHAT_MODEL") ?? "gemini-3.5-flash-lite";
+    const fallbackModel = Deno.env.get("SYMPTOM_CHAT_FALLBACK_MODEL") ?? "gemma-4-26b-a4b-it";
 
     let assessment: Assessment | null = null;
-    for (const model of [primaryModel, fallbackModel, lastResortModel]) {
+    for (const model of [primaryModel, fallbackModel]) {
       assessment = await callModel(model, messages, key);
       if (assessment) break;
     }
