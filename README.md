@@ -9,6 +9,7 @@ doctor, pharmacist, or emergency services, and it never prescribes medicine.
 - English/Twi localisation across the whole interface
 - Real Supabase authentication (sign up, sign in, sign out, password reset)
 - Deterministic symptom guidance with prominent emergency warnings (no fabricated confidence scores)
+- Free-text symptom assistant: type your symptoms, the AI asks a few follow-up questions, then reports one of the same urgency levels (emergency / urgent / routine / self-care) with the checklist kept below as a fallback
 - Medicine search over a local Ghana NHIS Medicines List dataset with full provenance
 - "Translate to Twi" for medicine details, symptom results, and education content (server-side key)
 - Appointment **requests** (requests, not confirmed bookings), stored in the database with Row-Level Security
@@ -49,9 +50,21 @@ Set with the Supabase CLI (`supabase secrets set NAME=value`) or in the dashboar
 ```bash
 GHANA_NLP_KEY=...        # GhanaNLP Ocp-Apim-Subscription-Key (required for Twi translation)
 BRAVE_SEARCH_API_KEY=... # Brave Search API key (required for "Search the web")
-GEMMA_API_KEY=...        # Google AI API key (required for Gemma text + vision: gemma-chat and medicine-photo)
-ALLOWED_ORIGIN=https://yourapp.example   # required by translate-content and search-content for CORS
+GEMMA_API_KEY=...        # Google AI API key (Gemma text + vision: gemma-chat, medicine-photo, symptom-chat)
+ALLOWED_ORIGIN=https://yourapp.example   # required by every Edge Function for CORS
 ```
+
+Optional model overrides for `symptom-chat` (defaults shown):
+
+```bash
+SYMPTOM_CHAT_MODEL=gemini-3.6-flash
+SYMPTOM_CHAT_FALLBACK_MODEL=gemini-3.5-flash-lite
+SYMPTOM_CHAT_LAST_RESORT_MODEL=gemma-4-26b-a4b-it
+```
+
+The free tier of `gemini-3.6-flash` allows only 20 requests per day, so the function
+falls back to the lite model and then Gemma; when every model is unavailable it
+returns an honest "unavailable" result instead of guessing.
 
 `ALLOWED_ORIGIN` is the exact origin the frontend is served from. Requests from any
 other origin are rejected by the Edge Functions. `SUPABASE_URL` and
@@ -93,6 +106,7 @@ other origin are rejected by the Edge Functions. `SUPABASE_URL` and
    supabase functions deploy search-content
    supabase functions deploy gemma-chat
    supabase functions deploy medicine-photo
+   supabase functions deploy symptom-chat
    supabase secrets set GHANA_NLP_KEY=...
    supabase secrets set BRAVE_SEARCH_API_KEY=...
    supabase secrets set GEMMA_API_KEY=...

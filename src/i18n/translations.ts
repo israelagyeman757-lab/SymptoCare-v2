@@ -158,6 +158,22 @@ export const translations = {
     'symptoms.selfCareBanner': 'Self-care information. You can usually manage these at home. See a health worker if things get worse.',
     'symptoms.routineBanner': 'Routine care. Book a visit with a health worker when you can.',
 
+    // Conversational symptom assistant
+    'symptomChat.title': 'Describe your symptoms',
+    'symptomChat.subtitle': 'Type what you are feeling in your own words. The assistant may ask a few questions, then tell you how urgent it is.',
+    'symptomChat.placeholder': 'e.g. Fever and headache since yesterday',
+    'symptomChat.send': 'Send',
+    'symptomChat.retry': 'Try again',
+    'symptomChat.thinking': 'Thinking...',
+    'symptomChat.you': 'You',
+    'symptomChat.assistant': 'Assistant',
+    'symptomChat.restart': 'Start over',
+    'symptomChat.error': 'The symptom assistant is unavailable right now. If this could be an emergency, call 112 or go to the nearest health facility. You can also use the checklist below.',
+    'symptomChat.englishOnly': 'The assistant replies in English while the Twi wording is under review.',
+    'symptomChat.disclaimer': 'This is educational guidance from an AI assistant, not a diagnosis. A health worker decides what care you need.',
+    'symptomChat.optionsTitle': 'Or check symptoms from a list',
+    'symptomChat.optionsHint': 'Answer fixed questions step by step instead of typing.',
+
     // Symptom results
     'results.title': 'Your guidance',
     'results.urgency.emergency': 'Emergency',
@@ -497,6 +513,22 @@ export const translations = {
     'symptoms.professionalBanner': 'Hwɛ ɔyaresa ho adwumayɛfo. Wo mmuae kyerɛ sɛ ɛsɛ sɛ wɔhwɛ wo ntɛm.',
     'symptoms.selfCareBanner': 'Nea wobɛyɛ wo ara. Wobetumi ahwɛ eyinom wɔ fie. Hwɛ ɔyaresa ho adwumayɛfo sɛ ɛnyɛ yiye koraa a.',
     'symptoms.routineBanner': 'Da biara ayaresa. Yɛ nhyiamu ne ɔyaresa ho adwumayɛfo bere a wubetumi.',
+
+    // Conversational symptom assistant (provisional Twi — needs review)
+    'symptomChat.title': 'Ka nsɛnkyerɛnne a ɛwɔ wo so',
+    'symptomChat.subtitle': 'Kyerɛw nea wote nka wɔ wo ankasa kasa mu. Ɔboafo no betumi abisa nsɛmmisa kakra, ansa na waka sɛ ɛhia ayaresa ntɛm anaasɛ aane.',
+    'symptomChat.placeholder': 'Sɛ apɛde: Atiridii ne tipaeɛ fi nnɛra',
+    'symptomChat.send': 'Soma',
+    'symptomChat.retry': 'San yɛ bio',
+    'symptomChat.thinking': 'Rɛdwen...',
+    'symptomChat.you': 'Wo',
+    'symptomChat.assistant': 'Ɔboafo',
+    'symptomChat.restart': 'Fi ase biom',
+    'symptomChat.error': 'Ɔboafo no nni hɔ seesei. Sɛ eyi betumi ayɛ amanehunu a, frɛ 112 anaasɛ kɔ ayaresabea a ɛbɛn hɔ. Wobetumi nso afa nhyehyɛe a ɛwɔ ase ha no so.',
+    'symptomChat.englishOnly': 'Ɔboafo no bua Borɔfo mu berɛ a wɔda so rehwɛ Twi nsɛm no.',
+    'symptomChat.disclaimer': 'Eyi yɛ adesua akwankyerɛ a ɛfiri AI ɔboafo hɔ, ɛnyɛ yareɛ ho ɔkasa. Ɔyaresa ho adwumayɛfo na ɛkyerɛ ayaresa a ehia.',
+    'symptomChat.optionsTitle': 'Anaasɛ hwɛ nsɛnkyerɛnne wɔ nnwuma mu',
+    'symptomChat.optionsHint': 'Bua nsɛmmisa a ɛnsesa anammɔn mu sen sɛ wobɛkyerɛw.',
 
     // Symptom results
     'results.title': 'Wo akwankyerɛ',

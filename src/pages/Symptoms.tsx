@@ -9,6 +9,7 @@ import {
   type TriageResult,
 } from '@/lib/triage';
 import { useI18n } from '@/i18n/useI18n';
+import { SymptomChat } from '@/components/shared/SymptomChat';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -96,6 +97,13 @@ export default function Symptoms() {
     <div className="container max-w-2xl py-8">
       <h1 className="text-2xl font-bold md:text-3xl">{t('symptoms.title')}</h1>
       <p className="mt-2 text-muted-foreground">{t('symptoms.subtitle')}</p>
+
+      <SymptomChat />
+
+      <div className="mt-10 border-t pt-8">
+        <h2 className="text-lg font-bold">{t('symptomChat.optionsTitle')}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t('symptomChat.optionsHint')}</p>
+      </div>
 
       <p className="mt-4 text-sm font-semibold text-muted-foreground">{currentStepLabel()}</p>
       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={1} aria-valuemax={totalSteps} aria-valuenow={Math.min(step + 1, totalSteps)}>

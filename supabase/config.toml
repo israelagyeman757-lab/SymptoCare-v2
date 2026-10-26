@@ -40,3 +40,6 @@ verify_jwt = true
 
 [functions.medicine-photo]
 verify_jwt = true
+
+[functions.symptom-chat]
+verify_jwt = true
