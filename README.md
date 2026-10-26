@@ -146,6 +146,6 @@ Machine-translated Twi is always labelled "not clinically reviewed".
 - **Appointments are requests, not confirmed bookings.** A provider confirmation workflow does not exist yet; the `status` column reserves `confirmed` for it.
 - **Web search fallback** calls the Brave Search API server-side. Results are labelled as unreviewed external web content, never as medical advice.
 - **The "Ask a health question" assistant** calls a Google Gemma model server-side and is constrained to general, educational answers. It is not clinically reviewed and must never be treated as a diagnosis or medical advice; the UI labels it accordingly.
-- **Medicine photo search** reads a name from a photo via a server-side Google vision model (`gemini-omni-1.1-flash` by default, overridable with the `MEDICINE_PHOTO_MODEL` secret). The vision model must be enabled on the Gemini account — on the Free Tier it returns 429 (quota 0). When the name isn't in the local list, the app shows an educational Gemma summary plus unreviewed Brave web results.
+- **Medicine photo search** reads a name from a photo via a server-side Google vision model (`gemini-3.5-flash` by default, overridable with the `MEDICINE_PHOTO_MODEL` secret). When the name isn't in the local list, the app shows an educational Gemma summary plus unreviewed Brave web results.
 - **Twi text-to-speech** is intentionally not implemented.
 - Medicine records come from the NHIS Medicines List (2017) and are flagged "needs review"; the list is not a live availability feed.

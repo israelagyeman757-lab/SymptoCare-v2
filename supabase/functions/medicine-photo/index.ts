@@ -71,7 +71,7 @@ serve(async (req: Request) => {
     }
     if (requestCount > 30) return json({ error: "Rate limit exceeded" }, 429);
 
-    const model = Deno.env.get("MEDICINE_PHOTO_MODEL") ?? "gemini-omni-1.1-flash";
+    const model = Deno.env.get("MEDICINE_PHOTO_MODEL") ?? "gemini-3.5-flash";
     const endpoint =
       Deno.env.get("GEMINI_API_URL") ??
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
