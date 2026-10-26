@@ -128,6 +128,12 @@ export const translations = {
     'dashboard.requestsStatus': 'Appointment requests',
     'dashboard.noRequests': 'You have no appointment requests yet.',
     'dashboard.reminder': 'Reminder: SymptoCare gives information only. If you feel very unwell, call 112.',
+    'gemma.title': 'Ask a health question',
+    'gemma.placeholder': 'e.g. What does Paracetamol do?',
+    'gemma.submit': 'Ask',
+    'gemma.asking': 'Asking...',
+    'gemma.disclaimer': 'Educational answer only — this is not a diagnosis or medical advice.',
+    'gemma.unavailable': 'The assistant is not available right now. Please try again later.',
 
     // Symptoms
     'symptoms.title': 'Symptom checker',
@@ -457,6 +463,12 @@ export const translations = {
     'dashboard.requestsStatus': 'Nhyiamu nhwehwɛde',
     'dashboard.noRequests': 'Nni nhyiamu nhwehwɛde biara ɛmfa ho.',
     'dashboard.reminder': 'Nkae: SymptoCare de nsɛm nko ara na ɛma. Sɛ wo ho nye wo yiye a, frɛ 112.',
+    'gemma.title': 'Bisa apɔmuden asɛmmisa',
+    'gemma.placeholder': 'Sɛ nhwɛso no, dɛn na Paracetamol yɛ?',
+    'gemma.submit': 'Bisa',
+    'gemma.asking': 'Rebisa...',
+    'gemma.disclaimer': 'Adesua nko ara — ɛnyɛ yareɛ ho ɔkasa anaasɛ afotuo.',
+    'gemma.unavailable': 'Boa no nni hɔ mprempren. San bɔ mmɔden akyiri yi.',
 
     // Symptoms
     'symptoms.title': 'Yareɛ nsɛnkyerɛnne hwɛfo',

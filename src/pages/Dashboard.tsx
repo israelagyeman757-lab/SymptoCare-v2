@@ -5,7 +5,9 @@ import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/i18n/useI18n';
 import { facilityTranslationKey, listRequests, type AppointmentRequest } from '@/lib/appointments';
 import { getRecentMedicine } from '@/lib/recent';
+import { askGemma } from '@/lib/gemma';
 import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -15,6 +17,26 @@ export default function Dashboard() {
   const [requests, setRequests] = useState<AppointmentRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [recentMedicine] = useState(() => getRecentMedicine());
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [asking, setAsking] = useState(false);
+  const [gemmaUnavailable, setGemmaUnavailable] = useState(false);
+
+  const askQuestion = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const q = question.trim();
+    if (!q || asking) return;
+    setAsking(true);
+    setAnswer('');
+    setGemmaUnavailable(false);
+    const result = await askGemma(q);
+    setAsking(false);
+    if (result.status === 'available') {
+      setAnswer(result.answer);
+    } else {
+      setGemmaUnavailable(true);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -120,6 +142,31 @@ export default function Dashboard() {
             </Link>
           ))}
         </div>
+      </section>
+
+      <section aria-labelledby="ask-heading" className="mt-8">
+        <h2 id="ask-heading" className="text-lg font-bold">
+          {t('gemma.title')}
+        </h2>
+        <form onSubmit={askQuestion} className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <input
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder={t('gemma.placeholder')}
+            maxLength={500}
+            className="min-h-11 flex-1 rounded-md border border-input bg-card px-3 py-2 text-sm"
+          />
+          <Button type="submit" disabled={asking || !question.trim()}>
+            {asking ? t('gemma.asking') : t('gemma.submit')}
+          </Button>
+        </form>
+        {answer && (
+          <div className="mt-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">{answer}</div>
+        )}
+        {gemmaUnavailable && (
+          <p className="mt-3 text-sm text-muted-foreground">{t('gemma.unavailable')}</p>
+        )}
+        <p className="mt-2 text-xs text-muted-foreground">{t('gemma.disclaimer')}</p>
       </section>
 
       <section aria-labelledby="requests-heading" className="mt-8">

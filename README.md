@@ -14,6 +14,7 @@ doctor, pharmacist, or emergency services, and it never prescribes medicine.
 - Appointment **requests** (requests, not confirmed bookings), stored in the database with Row-Level Security
 - Region → clinic selection for appointments (clinics load from the `clinics` table; a region must be chosen before a clinic)
 - Optional "Search the web" for symptom guidance and medicine details via a server-side Brave Search call (results are labelled as unreviewed web content)
+- Educational "Ask a health question" assistant powered by a server-side Google Gemma model (labelled educational-only, never diagnostic)
 - Reviewed-style first-aid / CPR and health-education content (flagged as awaiting clinical review)
 
 ## Tech stack
@@ -25,6 +26,7 @@ React 18 · TypeScript · Vite · Tailwind CSS · React Router · Zustand · Sup
 - Node.js 20+
 - A Supabase project (see below)
 - A GhanaNLP API subscription key (for Twi translation)
+- A Google Gemini API key (for the "Ask a health question" assistant)
 
 ## Environment variables
 
@@ -46,6 +48,7 @@ Set with the Supabase CLI (`supabase secrets set NAME=value`) or in the dashboar
 ```bash
 GHANA_NLP_KEY=...        # GhanaNLP Ocp-Apim-Subscription-Key (required for Twi translation)
 BRAVE_SEARCH_API_KEY=... # Brave Search API key (required for "Search the web")
+GEMINI_API_KEY=...       # Google Gemini API key (required for the "Ask" assistant; gemma-chat function)
 ALLOWED_ORIGIN=https://yourapp.example   # required by translate-content and search-content for CORS
 ```
 
@@ -63,7 +66,8 @@ other origin are rejected by the Edge Functions. `SUPABASE_URL` and
      a partial unique index against duplicate pending requests,
    - `translation_rate_limits` (per-user hourly counter for Twi translation),
    - `clinics` plus `region`/`clinic_id` on appointment requests,
-   - `search_rate_limits` (per-user hourly counter for web search).
+   - `search_rate_limits` (per-user hourly counter for web search),
+   - `gemma_rate_limits` (per-user hourly counter for the "Ask" assistant).
 3. Configure **Authentication** in the dashboard:
    - Site URL / redirect URLs (e.g. `https://yourapp.example` and its `/auth` path)
    - Email provider (SMTP) for password-reset and confirmation emails
@@ -84,8 +88,10 @@ other origin are rejected by the Edge Functions. `SUPABASE_URL` and
    ```bash
    supabase functions deploy translate-content
    supabase functions deploy search-content
+   supabase functions deploy gemma-chat
    supabase secrets set GHANA_NLP_KEY=...
    supabase secrets set BRAVE_SEARCH_API_KEY=...
+   supabase secrets set GEMINI_API_KEY=...
    supabase secrets set ALLOWED_ORIGIN=https://yourapp.example
    ```
 
@@ -137,6 +143,7 @@ Machine-translated Twi is always labelled "not clinically reviewed".
 
 - **Appointments are requests, not confirmed bookings.** A provider confirmation workflow does not exist yet; the `status` column reserves `confirmed` for it.
 - **Web search fallback** calls the Brave Search API server-side. Results are labelled as unreviewed external web content, never as medical advice.
+- **The "Ask a health question" assistant** calls a Google Gemma model server-side and is constrained to general, educational answers. It is not clinically reviewed and must never be treated as a diagnosis or medical advice; the UI labels it accordingly.
 - **Medicine-packaging OCR (photo → medicine name)** is not implemented. Brave Search is keyword search and cannot read an image; that would require a vision/OCR model (e.g. Google Gemini) and its key.
 - **Twi text-to-speech** is intentionally not implemented.
 - Medicine records come from the NHIS Medicines List (2017) and are flagged "needs review"; the list is not a live availability feed.
