@@ -73,17 +73,19 @@ other origin are rejected by the Edge Functions. `SUPABASE_URL` and
    - Site URL / redirect URLs (e.g. `https://yourapp.example` and its `/auth` path)
    - Email provider (SMTP) for password-reset and confirmation emails
    - Enable/disable email confirmation as your policy requires
-4. Load clinics into the `clinics` table (the list is not shipped in the repo):
+4. Clinics: `src/data/clinics.json` ships a starter list (unverified — see its
+   `data_status` note) and is used as a fallback when the `clinics` table is
+   empty. To make `clinic_id`/`region` meaningful on appointment requests, seed
+   the table from that file. `region` must be one of the 16 official regions:
 
    ```sql
    insert into public.clinics (name, region, facility_type) values
-     ('Korle Bu Teaching Hospital', 'Greater Accra', 'districtHospital'),
-     -- ... one row per clinic; region must be one of the 16 Ghana regions
-     ('Example Health Centre', 'Ashanti', 'healthCentre');
+     ('Korle Bu Teaching Hospital', 'Greater Accra', 'teaching_hospital'),
+     ('Example Health Centre', 'Ashanti', 'health_centre');
    ```
 
-   `region` is validated against the 16 official regions. The appointment form
-   shows the region dropdown first, then clinics filtered by that region.
+   The appointment form shows the region dropdown first, then clinics filtered
+   by that region.
 5. Deploy the Edge Functions:
 
    ```bash

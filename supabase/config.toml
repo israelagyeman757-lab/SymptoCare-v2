@@ -29,5 +29,14 @@ enable_signup = true
 enable_confirmations = true
 double_confirm_changes = true
 
-[functions]
+[functions.translate-content]
+verify_jwt = true
+
+[functions.search-content]
+verify_jwt = true
+
+[functions.gemma-chat]
+verify_jwt = true
+
+[functions.medicine-photo]
 verify_jwt = true
