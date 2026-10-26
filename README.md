@@ -15,7 +15,7 @@ doctor, pharmacist, or emergency services, and it never prescribes medicine.
 - Region → clinic selection for appointments (clinics load from the `clinics` table; a region must be chosen before a clinic)
 - Optional "Search the web" for symptom guidance and medicine details via a server-side Brave Search call (results are labelled as unreviewed web content)
 - Educational "Ask a health question" assistant powered by a server-side Google Gemma model (labelled educational-only, never diagnostic)
-- "Search with a photo": reads a medicine name from a photo (server-side Google vision model), then looks it up locally — or, if it's not in the list, shows an educational summary plus unreviewed web results
+- "Search with a photo": reads a medicine name from a photo (server-side Gemma model), then looks it up locally — or, if it's not in the list, shows an educational summary plus unreviewed web results
 - Reviewed-style first-aid / CPR and health-education content (flagged as awaiting clinical review)
 
 ## Tech stack
@@ -146,6 +146,6 @@ Machine-translated Twi is always labelled "not clinically reviewed".
 - **Appointments are requests, not confirmed bookings.** A provider confirmation workflow does not exist yet; the `status` column reserves `confirmed` for it.
 - **Web search fallback** calls the Brave Search API server-side. Results are labelled as unreviewed external web content, never as medical advice.
 - **The "Ask a health question" assistant** calls a Google Gemma model server-side and is constrained to general, educational answers. It is not clinically reviewed and must never be treated as a diagnosis or medical advice; the UI labels it accordingly.
-- **Medicine photo search** reads a name from a photo via a server-side Google vision model (`gemini-3.5-flash` by default, overridable with the `MEDICINE_PHOTO_MODEL` secret). When the name isn't in the local list, the app shows an educational Gemma summary plus unreviewed Brave web results.
+- **Medicine photo search** reads a name from a photo via a server-side Gemma model (`gemma-4-26b-a4b-it` by default, overridable with the `MEDICINE_PHOTO_MODEL` secret). The same Gemma model powers the "Ask" assistant, so no Gemini model is required. When the name isn't in the local list, the app shows an educational Gemma summary plus unreviewed Brave web results.
 - **Twi text-to-speech** is intentionally not implemented.
 - Medicine records come from the NHIS Medicines List (2017) and are flagged "needs review"; the list is not a live availability feed.
