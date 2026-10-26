@@ -7,3 +7,6 @@ dist-ssr
 !.env.example
 coverage
 *.tsbuildinfo
+
+# Supabase CLI local state
+supabase/.temp
