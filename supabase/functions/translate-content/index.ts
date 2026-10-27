@@ -18,12 +18,16 @@ interface TranslationResult {
   reason?: string;
 }
 
-const TARGETS: Record<string, { pair: string; name: string }> = {
-  tw: { pair: "twi", name: "Twi" },
-  ee: { pair: "ewe", name: "Ewe" },
-  gaa: { pair: "gaa", name: "Ga" },
-  fat: { pair: "fat", name: "Fante" },
-  dag: { pair: "dag", name: "Dagbani" },
+const TARGETS: Record<string, { pair: string; name: string; description: string }> = {
+  tw: { pair: "twi", name: "Twi", description: "Twi (Akan) is a Ghanaian language." },
+  ee: { pair: "ewe", name: "Ewe", description: "Ewe (Eʋegbe) is a Ghanaian language spoken in the Volta Region." },
+  gaa: {
+    pair: "gaa",
+    name: "Ga",
+    description: "Ga is the Ghanaian language spoken in and around Accra. Use Ga, never Irish.",
+  },
+  fat: { pair: "fat", name: "Fante", description: "Fante (Mfantse) is a Ghanaian language of the Central Region." },
+  dag: { pair: "dag", name: "Dagbani", description: "Dagbani is a Ghanaian language of northern Ghana." },
 };
 
 serve(async (req: Request) => {
@@ -74,7 +78,7 @@ serve(async (req: Request) => {
     if (requestCount > 30) return json({ error: "Rate limit exceeded" }, 429);
 
     let translatedText = await translateWithKhaya(text, targetInfo.pair);
-    if (!translatedText) translatedText = await translateWithGoogle(text, targetInfo.name);
+    if (!translatedText) translatedText = await translateWithGoogle(text, targetInfo.name, targetInfo.description);
 
     if (!translatedText) {
       return json(
@@ -140,7 +144,7 @@ async function translateWithKhaya(text: string, pair: string): Promise<string> {
  * Google fallback using a light model dedicated to translation, so the chat
  * models keep their own quota. Used when Khaya is out of call volume.
  */
-async function translateWithGoogle(text: string, languageName: string): Promise<string> {
+async function translateWithGoogle(text: string, languageName: string, description: string): Promise<string> {
   const key = Deno.env.get("GEMMA_API_KEY");
   if (!key) return "";
 
@@ -160,7 +164,9 @@ async function translateWithGoogle(text: string, languageName: string): Promise<
             systemInstruction: {
               parts: [{
                 text:
-                  `Translate the user's text from English into ${languageName}. ` +
+                  `Translate the user's text from English into ${languageName}. ${description} ` +
+                  "Translate short interface labels too: use the natural word in the target language " +
+                  "instead of copying the English text. " +
                   "Reply with the translation only, with no notes or explanations. " +
                   "Keep numbers such as 112 and placeholders such as {count} unchanged.",
               }],
