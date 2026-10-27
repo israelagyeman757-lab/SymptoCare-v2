@@ -1,4 +1,5 @@
 import { supabase, supabaseConfigured } from '@/integrations/supabase/client';
+import type { AppLanguage } from '@/i18n/translations';
 
 export interface GemmaResult {
   status: 'available' | 'unavailable';
@@ -13,12 +14,12 @@ const UNAVAILABLE: GemmaResult = { status: 'unavailable', answer: '' };
  * holds it. Failures return an honest "unavailable" result and the UI shows
  * a fallback message.
  */
-export async function askGemma(prompt: string): Promise<GemmaResult> {
+export async function askGemma(prompt: string, language: AppLanguage): Promise<GemmaResult> {
   if (!supabaseConfigured || !supabase) return UNAVAILABLE;
 
   try {
     const { data, error } = await supabase.functions.invoke('gemma-chat', {
-      body: { prompt },
+      body: { prompt, language },
     });
 
     if (error || !data) return UNAVAILABLE;

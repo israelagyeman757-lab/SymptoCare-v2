@@ -4,6 +4,7 @@ import { ArrowLeft, Pill, FileText } from 'lucide-react';
 import { getMedicineById, MEDICINE_META } from '@/lib/medicines';
 import { setRecentMedicine } from '@/lib/recent';
 import { useI18n } from '@/i18n/useI18n';
+import { medicineTerm } from '@/i18n/medicineTerms';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +22,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 export default function MedicineDetail() {
   const { id } = useParams<{ id: string }>();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const record = id ? getMedicineById(id) : undefined;
 
   useEffect(() => {
@@ -41,7 +42,9 @@ export default function MedicineDetail() {
   }
 
   const priceText =
-    record.price_ghs != null ? `GH₵ ${record.price_ghs.toFixed(2)} / ${record.unit_of_pricing ?? ''}` : t('common.notAvailable');
+    record.price_ghs != null
+      ? `GH₵ ${record.price_ghs.toFixed(2)} / ${medicineTerm(record.unit_of_pricing, language) ?? ''}`
+      : t('common.notAvailable');
 
   const descriptionEn = [
     `${record.generic_name}.`,
@@ -68,7 +71,7 @@ export default function MedicineDetail() {
         <div>
           <h1 className="text-2xl font-bold md:text-3xl">{record.generic_name}</h1>
           <div className="mt-2 flex flex-wrap gap-2">
-            {record.dosage_form && <Badge variant="secondary">{record.dosage_form}</Badge>}
+            {record.dosage_form && <Badge variant="secondary">{medicineTerm(record.dosage_form, language)}</Badge>}
             {record.strength && <Badge variant="muted">{record.strength}</Badge>}
           </div>
         </div>
@@ -81,8 +84,11 @@ export default function MedicineDetail() {
         <CardContent>
           <dl>
             <DetailRow label={t('medicines.strength')} value={record.strength ?? t('common.notAvailable')} />
-            <DetailRow label={t('medicines.dosageForm')} value={record.dosage_form ?? t('common.notAvailable')} />
-            <DetailRow label={t('medicines.unitOfPricing')} value={record.unit_of_pricing ?? t('common.notAvailable')} />
+            <DetailRow label={t('medicines.dosageForm')} value={medicineTerm(record.dosage_form, language) ?? t('common.notAvailable')} />
+            <DetailRow
+              label={t('medicines.unitOfPricing')}
+              value={medicineTerm(record.unit_of_pricing, language) ?? t('common.notAvailable')}
+            />
             <DetailRow label={t('medicines.price')} value={priceText} />
             <DetailRow label={t('medicines.prescribingLevel')} value={record.prescribing_level ?? t('common.notAvailable')} />
           </dl>

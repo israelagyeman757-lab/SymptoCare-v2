@@ -9,13 +9,34 @@ const corsHeaders = {
   "Vary": "Origin",
 };
 
-const SYSTEM_INSTRUCTION =
-  "You are a health-education assistant inside SymptoCare, an educational app for Ghana. " +
-  "Answer in plain, short English using only widely accepted general information. " +
-  "You must never give a diagnosis, prescribe or recommend medicine, or replace a doctor, pharmacist, or emergency services. " +
-  "If the question is about an emergency, severe symptoms, or someone who is seriously ill or injured, tell them to call 112 or go to the nearest health facility immediately. " +
-  "If you are not sure, say so. " +
-  "When web search results are supplied, use only those results and do not add facts that are missing from them.";
+const LANGUAGES: Record<string, { name: string; description: string }> = {
+  en: { name: "English", description: "" },
+  tw: { name: "Twi", description: "Twi (Akan) is a Ghanaian language." },
+  ee: { name: "Ewe", description: "Ewe (Eʋegbe) is a Ghanaian language spoken in the Volta Region." },
+  gaa: {
+    name: "Ga",
+    description: "Ga is the Ghanaian language spoken in and around Accra. Use Ga, never Irish.",
+  },
+  fat: { name: "Fante", description: "Fante (Mfantse) is a Ghanaian language of the Central Region." },
+  dag: { name: "Dagbani", description: "Dagbani is a Ghanaian language of northern Ghana." },
+};
+
+function systemInstruction(language: { name: string; description: string }): string {
+  const replyStyle =
+    language.name === "English"
+      ? "Answer in plain, short English"
+      : `Answer in plain, short ${language.name}. ${language.description} ` +
+        "Keep medicine names and emergency numbers in English";
+
+  return (
+    "You are a health-education assistant inside SymptoCare, an educational app for Ghana. " +
+    `${replyStyle} using only widely accepted general information. ` +
+    "You must never give a diagnosis, prescribe or recommend medicine, or replace a doctor, pharmacist, or emergency services. " +
+    "If the question is about an emergency, severe symptoms, or someone who is seriously ill or injured, tell them to call 112 or go to the nearest health facility immediately. " +
+    "If you are not sure, say so. " +
+    "When web search results are supplied, use only those results and do not add facts that are missing from them."
+  );
+}
 
 serve(async (req: Request) => {
   if (!allowedOrigin) return json({ error: "ALLOWED_ORIGIN is not configured" }, 503);
@@ -31,6 +52,8 @@ serve(async (req: Request) => {
   try {
     const body = await req.json();
     const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
+    const requested = typeof body?.language === "string" ? body.language : "en";
+    const language = LANGUAGES[requested] ?? LANGUAGES.en;
 
     if (!prompt) return json({ error: "Missing 'prompt'" }, 400);
     if (prompt.length > 4000) return json({ error: "Prompt too long" }, 413);
@@ -69,7 +92,7 @@ serve(async (req: Request) => {
 
     let answer = "";
     for (const model of [primaryModel, fallbackModel]) {
-      answer = await requestAnswer(model, key, prompt);
+      answer = await requestAnswer(model, key, prompt, language);
       if (answer) break;
     }
 
@@ -84,7 +107,12 @@ serve(async (req: Request) => {
   }
 });
 
-async function requestAnswer(model: string, key: string, prompt: string): Promise<string> {
+async function requestAnswer(
+  model: string,
+  key: string,
+  prompt: string,
+  language: { name: string; description: string }
+): Promise<string> {
   try {
     const endpoint =
       Deno.env.get("GEMMA_API_URL") ??
@@ -97,7 +125,7 @@ async function requestAnswer(model: string, key: string, prompt: string): Promis
         "x-goog-api-key": key,
       },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+        systemInstruction: { parts: [{ text: systemInstruction(language) }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: { temperature: 0.4, maxOutputTokens: 1200 },
       }),

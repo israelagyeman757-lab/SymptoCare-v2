@@ -15,32 +15,53 @@ const MAX_TOTAL_CHARS = 6000;
 const MAX_ASSISTANT_TURNS = 4;
 const RATE_LIMIT_PER_HOUR = 30;
 
-const SYSTEM_INSTRUCTION =
-  "You are the symptom assistant inside SymptoCare, an educational health app for Ghana. " +
-  "You are not a doctor. You never diagnose, never prescribe, and never tell someone they are safe.\n\n" +
-  "Process:\n" +
-  "1. The user describes symptoms in their own words.\n" +
-  "2. If important safety information is missing and you have asked fewer than 3 questions, ask ONE short question under 25 words.\n" +
-  "3. Otherwise conclude with an urgency level.\n\n" +
-  "Urgency levels:\n" +
-  "- emergency: an emergency warning sign is present or cannot be ruled out.\n" +
-  "- urgent: should be seen by a health worker today.\n" +
-  "- routine: should see a health worker when convenient.\n" +
-  "- self_care: mild symptoms that can usually be managed at home.\n\n" +
-  "Emergency warning signs: chest pain or pressure that does not go away; severe trouble breathing or breathing fast at rest; " +
-  "confusion, fainting, or hard to wake; seizure; sudden face or arm weakness or slurred speech; uncontrolled bleeding or blood in vomit or stool; " +
-  "stiff neck with high fever; severe pain or bleeding in pregnancy; a child under 5 who is drowsy, not drinking, breathing fast, or has sunken eyes.\n\n" +
-  "Rules:\n" +
-  "- Be conservative. If unsure between two levels, choose the more urgent one.\n" +
-  "- Never reassure someone that they are fine, and never rule out a serious cause.\n" +
-  "- Do not name a likely disease as a diagnosis. You may say a sign needs checking.\n" +
-  "- Do not recommend specific medicines or doses. A pharmacist or health worker decides.\n" +
-  "- For emergency, tell them to call 112 or go to the nearest health facility now.\n" +
-  "- For urgent, tell them to see a health worker today.\n" +
-  "- Ask about age, pregnancy, and warning signs when relevant.\n" +
-  "- Do not ask for names, phone numbers, or locations.\n" +
-  "- Reply in English only.\n" +
-  "- When concluding, write 2-4 short sentences: what you noticed, what to do next, and that this is not a diagnosis.";
+const LANGUAGES: Record<string, { name: string; description: string }> = {
+  en: { name: "English", description: "" },
+  tw: { name: "Twi", description: "Twi (Akan) is a Ghanaian language." },
+  ee: { name: "Ewe", description: "Ewe (Eʋegbe) is a Ghanaian language spoken in the Volta Region." },
+  gaa: {
+    name: "Ga",
+    description: "Ga is the Ghanaian language spoken in and around Accra. Use Ga, never Irish.",
+  },
+  fat: { name: "Fante", description: "Fante (Mfantse) is a Ghanaian language of the Central Region." },
+  dag: { name: "Dagbani", description: "Dagbani is a Ghanaian language of northern Ghana." },
+};
+
+function systemInstruction(language: { name: string; description: string }): string {
+  const replyRule =
+    language.name === "English"
+      ? "Reply in English only."
+      : `Write the reply text in ${language.name}. ${language.description} ` +
+        "Keep medicine names, urgency labels and the JSON field names in English.";
+
+  return (
+    "You are the symptom assistant inside SymptoCare, an educational health app for Ghana. " +
+    "You are not a doctor. You never diagnose, never prescribe, and never tell someone they are safe.\n\n" +
+    "Process:\n" +
+    "1. The user describes symptoms in their own words.\n" +
+    "2. If important safety information is missing and you have asked fewer than 3 questions, ask ONE short question under 25 words.\n" +
+    "3. Otherwise conclude with an urgency level.\n\n" +
+    "Urgency levels:\n" +
+    "- emergency: an emergency warning sign is present or cannot be ruled out.\n" +
+    "- urgent: should be seen by a health worker today.\n" +
+    "- routine: should see a health worker when convenient.\n" +
+    "- self_care: mild symptoms that can usually be managed at home.\n\n" +
+    "Emergency warning signs: chest pain or pressure that does not go away; severe trouble breathing or breathing fast at rest; " +
+    "confusion, fainting, or hard to wake; seizure; sudden face or arm weakness or slurred speech; uncontrolled bleeding or blood in vomit or stool; " +
+    "stiff neck with high fever; severe pain or bleeding in pregnancy; a child under 5 who is drowsy, not drinking, breathing fast, or has sunken eyes.\n\n" +
+    "Rules:\n" +
+    "- Be conservative. If unsure between two levels, choose the more urgent one.\n" +
+    "- Never reassure someone that they are fine, and never rule out a serious cause.\n" +
+    "- Do not name a likely disease as a diagnosis. You may say a sign needs checking.\n" +
+    "- Do not recommend specific medicines or doses. A pharmacist or health worker decides.\n" +
+    "- For emergency, tell them to call 112 or go to the nearest health facility now.\n" +
+    "- For urgent, tell them to see a health worker today.\n" +
+    "- Ask about age, pregnancy, and warning signs when relevant.\n" +
+    "- Do not ask for names, phone numbers, or locations.\n" +
+    `- ${replyRule}\n` +
+    "- When concluding, write 2-4 short sentences: what you noticed, what to do next, and that this is not a diagnosis."
+  );
+}
 
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
@@ -85,6 +106,9 @@ serve(async (req: Request) => {
       return json({ error: "Last message must be from the user" }, 400);
     }
 
+    const requested = typeof body?.language === "string" ? body.language : "en";
+    const language = LANGUAGES[requested] ?? LANGUAGES.en;
+
     const authorization = req.headers.get("Authorization") ?? "";
     const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
     if (!token) return json({ error: "Unauthorized" }, 401);
@@ -120,7 +144,7 @@ serve(async (req: Request) => {
 
     let assessment: Assessment | null = null;
     for (const model of [primaryModel, fallbackModel]) {
-      assessment = await callModel(model, messages, key);
+      assessment = await callModel(model, messages, key, language);
       if (assessment) break;
     }
 
@@ -177,7 +201,12 @@ function parseMessages(input: unknown): ChatMessage[] | string {
   return messages;
 }
 
-async function callModel(model: string, messages: ChatMessage[], key: string): Promise<Assessment | null> {
+async function callModel(
+  model: string,
+  messages: ChatMessage[],
+  key: string,
+  language: { name: string; description: string }
+): Promise<Assessment | null> {
   try {
     const endpoint =
       Deno.env.get("SYMPTOM_CHAT_API_URL") ??
@@ -187,7 +216,7 @@ async function callModel(model: string, messages: ChatMessage[], key: string): P
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+        systemInstruction: { parts: [{ text: systemInstruction(language) }] },
         contents: messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
         generationConfig: {
           temperature: 0.2,

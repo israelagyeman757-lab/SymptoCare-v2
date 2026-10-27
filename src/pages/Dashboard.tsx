@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Dashboard() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { user } = useAuth();
   const [requests, setRequests] = useState<AppointmentRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function Dashboard() {
     setAsking(true);
     setAnswer('');
     setGemmaUnavailable(false);
-    const result = await askGemma(q);
+    const result = await askGemma(q, language);
     setAsking(false);
     if (result.status === 'available') {
       setAnswer(result.answer);

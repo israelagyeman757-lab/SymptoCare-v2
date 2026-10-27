@@ -1,4 +1,5 @@
 import { supabase, supabaseConfigured } from '@/integrations/supabase/client';
+import type { AppLanguage } from '@/i18n/translations';
 
 export type SymptomUrgency = 'emergency' | 'urgent' | 'routine' | 'self_care';
 
@@ -28,12 +29,15 @@ const URGENCIES: SymptomUrgency[] = ['emergency', 'urgent', 'routine', 'self_car
  * model asks a few follow-up questions, then reports one of the app's existing
  * urgency levels. It never sees the Google key and never returns a diagnosis.
  */
-export async function askSymptomAssistant(messages: SymptomChatMessage[]): Promise<SymptomChatReply> {
+export async function askSymptomAssistant(
+  messages: SymptomChatMessage[],
+  language: AppLanguage
+): Promise<SymptomChatReply> {
   if (!supabaseConfigured || !supabase) return UNAVAILABLE;
 
   try {
     const { data, error } = await supabase.functions.invoke('symptom-chat', {
-      body: { messages },
+      body: { messages, language },
     });
 
     if (error || !data) return UNAVAILABLE;

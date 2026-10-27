@@ -1,6 +1,7 @@
 # SymptoCare
 
-A Ghana-focused healthcare information and education web app in English and Twi.
+A Ghana-focused healthcare information and education web app in English, Twi,
+Ewe, Ga, Fante and Dagbani.
 SymptoCare is an **educational and navigation tool** — it is not a substitute for a
 doctor, pharmacist, or emergency services, and it never prescribes medicine.
 
@@ -8,18 +9,19 @@ Live deployment: **https://symptocare-nu.vercel.app**
 
 ## Features
 
-- English/Twi localisation across the whole interface
+- Localisation across the whole interface in six languages (English, Twi, Ewe, Ga, Fante, Dagbani)
 - Real Supabase authentication (sign up, sign in, sign out, password reset)
 - Deterministic symptom guidance with prominent emergency warnings (no fabricated confidence scores)
-- Free-text symptom assistant: type your symptoms, the AI asks a few follow-up questions, then reports one of the same urgency levels (emergency / urgent / routine / self-care) with the checklist kept below as a fallback
+- Free-text symptom assistant: type your symptoms, the AI asks a few follow-up questions, then reports one of the same urgency levels (emergency / urgent / routine / self-care) with the checklist kept below as a fallback — replies follow the selected interface language
 - Medicine search over a local Ghana NHIS Medicines List dataset with full provenance
 - "Translate" for medicine details, symptom results, and education content into Twi, Ewe, Ga, Fante or Dagbani via a language picker (server-side key)
 - Appointment **requests** (requests, not confirmed bookings), stored in the database with Row-Level Security
 - Region → clinic selection for appointments (clinics load from the `clinics` table; a region must be chosen before a clinic)
 - Optional "Search the web" for symptom guidance and medicine details via a server-side Brave Search call (results are labelled as unreviewed web content)
-- Educational "Ask a health question" assistant powered by a server-side Google model (Gemini 3.5 Flash Lite with a Gemma fallback; labelled educational-only, never diagnostic)
+- Educational "Ask a health question" assistant powered by a server-side Google model (Gemini 3.5 Flash Lite with a Gemma fallback; labelled educational-only, never diagnostic) — answers follow the selected interface language
 - "Search with a photo": reads a medicine name from a photo (server-side model), then looks it up locally — or, if it is not in the list, searches the web automatically and shows an educational summary with its sources
-- Reviewed-style first-aid / CPR and health-education content (flagged as awaiting clinical review)
+- First-aid / CPR and health-education content translated into all six languages (machine-translated languages are unreviewed)
+- Medicine catalogue pack words (dosage forms, units) shown in the selected language where a local word is known, otherwise as printed on the pack
 
 ## Tech stack
 

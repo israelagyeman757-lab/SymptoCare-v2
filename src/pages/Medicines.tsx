@@ -6,6 +6,7 @@ import { identifyMedicineFromPhoto } from '@/lib/medicinePhoto';
 import { askGemma } from '@/lib/gemma';
 import { searchWeb, type WebSearchResult } from '@/lib/search';
 import { useI18n } from '@/i18n/useI18n';
+import { medicineTerm } from '@/i18n/medicineTerms';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +24,7 @@ function readAsDataUrl(file: File): Promise<string> {
 }
 
 export default function Medicines() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -53,7 +54,7 @@ export default function Medicines() {
       ? `Using only these web search results, summarise ${name} for a general audience in Ghana in 3 short sentences: what it is commonly used for and one safety point. Do not prescribe, do not give doses, and do not diagnose.\n\n${context}`
       : `What is ${name}? Give a short, general, educational answer for Ghana. Do not prescribe or diagnose.`;
 
-    const r = await askGemma(prompt);
+    const r = await askGemma(prompt, language);
     setAiBusy(false);
     if (r.status === 'available') setAiSummary(r.answer);
   };
@@ -198,7 +199,7 @@ export default function Medicines() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-bold">{record.generic_name}</p>
                   <p className="truncate text-sm text-muted-foreground">
-                    {[record.dosage_form, record.strength].filter(Boolean).join(' · ')}
+                    {[medicineTerm(record.dosage_form, language), record.strength].filter(Boolean).join(' · ')}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">

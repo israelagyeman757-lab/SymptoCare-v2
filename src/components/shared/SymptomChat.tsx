@@ -61,7 +61,7 @@ const LABEL_KEYS = {
 } as const;
 
 export function SymptomChat() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [messages, setMessages] = useState<SymptomChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
@@ -81,7 +81,7 @@ export function SymptomChat() {
     }
 
     setPhase('sending');
-    const reply = await askSymptomAssistant(next);
+    const reply = await askSymptomAssistant(next, language);
 
     if (reply.status !== 'available') {
       setPhase('error');
@@ -205,8 +205,7 @@ export function SymptomChat() {
                 }}
                 disabled={phase === 'sending'}
               />
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-xs text-muted-foreground">{t('symptomChat.englishOnly')}</p>
+              <div className="flex flex-wrap items-center justify-end gap-2">
                 <div className="flex gap-2">
                   {messages.length > 0 && (
                     <Button type="button" variant="ghost" onClick={reset} disabled={phase === 'sending'}>
