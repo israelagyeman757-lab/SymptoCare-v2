@@ -1378,6 +1378,7 @@ export const generatedTriage: Record<string, Record<string, string>> = {
     "Less than 1 day": "Ŋkeke ɖeka gbɔ",
     "1 to 3 days": "Ŋkeke ɖeka va se ɖe etɔ̃",
     "More than 3 days": "Ŋkeke etɔ̃ kple edzi",
+    "Sign in with this email": "Tsɔ e-mail sia dze eme",
   },
   gaa: {
     "Fever": "Fever",
@@ -1455,6 +1456,7 @@ export const generatedTriage: Record<string, Record<string, string>> = {
     "Less than 1 day": "Gbi kome feo",
     "1 to 3 days": "Gbi kome kɛyashi gbi etɛ",
     "More than 3 days": "Gbi etɛ feo",
+    "Sign in with this email": "Kɛɛ email nɛɛ awo shi",
   },
   fat: {
     "Dizziness or feeling faint": "Edwene-yera anaa onii a onntum nnyina yie",
@@ -1532,6 +1534,7 @@ export const generatedTriage: Record<string, Record<string, string>> = {
     "Less than 1 day": "Daa kor nkyɛn",
     "1 to 3 days": "Daa kor kɔsi ebiasa",
     "More than 3 days": "Daa ebiasa akyir",
+    "Sign in with this email": "Fa email yi kɔ mu",
   },
   dag: {
     "Fever": "Fever",
@@ -1609,5 +1612,6 @@ export const generatedTriage: Record<string, Record<string, string>> = {
     "Less than 1 day": "Dabsiri din bi pa dabsi yini",
     "1 to 3 days": "Dabsiri yini hali ni dibaa ata",
     "More than 3 days": "Dabsiri din gari dibaa ata",
+    "Sign in with this email": "Tuhi kpɛ ni email ŋɔ",
   },
 };

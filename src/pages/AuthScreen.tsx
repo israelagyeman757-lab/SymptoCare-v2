@@ -36,6 +36,7 @@ export default function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [emailInUse, setEmailInUse] = useState(false);
 
   useEffect(() => {
     if (!supabase) return;
@@ -56,6 +57,7 @@ export default function AuthScreen() {
     setError(null);
     setNotice(null);
     setBusy(true);
+    setEmailInUse(false);
     try {
       if (!configured || !supabase) {
         setError(t('auth.error.unconfigured'));
@@ -120,9 +122,17 @@ export default function AuthScreen() {
           },
         });
         if (signupError) {
-          setError(mapAuthError(signupError.message, t));
+          if (/already registered|already exists/i.test(signupError.message)) {
+            setEmailInUse(true);
+          } else {
+            setError(mapAuthError(signupError.message, t));
+          }
         } else if (data.session) {
           navigate('/dashboard', { replace: true });
+        } else if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          // Supabase returns an existing user with no identities when email
+          // confirmation is enabled, instead of an error.
+          setEmailInUse(true);
         } else {
           setNotice(t('auth.error.emailNotConfirmed'));
         }
@@ -272,6 +282,25 @@ export default function AuthScreen() {
               )}
 
               {error && <Alert variant="destructive" role="alert">{error}</Alert>}
+              {emailInUse && (
+                <Alert variant="warning" role="alert">
+                  <p>{t('auth.error.emailInUse')}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('signin');
+                      setEmailInUse(false);
+                      setPassword('');
+                      setConfirmPassword('');
+                      setError(null);
+                      setNotice(null);
+                    }}
+                    className="mt-2 min-h-11 cursor-pointer font-semibold text-primary hover:underline"
+                  >
+                    {t('auth.signInInstead')}
+                  </button>
+                </Alert>
+              )}
               {notice && <Alert variant="success">{notice}</Alert>}
 
               <Button type="submit" className="w-full" disabled={busy}>
@@ -301,6 +330,7 @@ export default function AuthScreen() {
                       setMode('signup');
                       setError(null);
                       setNotice(null);
+                      setEmailInUse(false);
                     }}
                     className="min-h-11 cursor-pointer font-semibold text-primary hover:underline"
                   >
@@ -313,6 +343,7 @@ export default function AuthScreen() {
                       setMode('signin');
                       setError(null);
                       setNotice(null);
+                      setEmailInUse(false);
                     }}
                     className="min-h-11 cursor-pointer font-semibold text-primary hover:underline"
                   >
