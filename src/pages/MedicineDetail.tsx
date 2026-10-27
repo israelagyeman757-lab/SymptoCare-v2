@@ -101,7 +101,6 @@ export default function MedicineDetail() {
           <dl>
             <DetailRow label={t('medicines.source')} value={MEDICINE_META.source_document} />
             <DetailRow label={t('medicines.sourcePage')} value={String(record.source_page ?? '—')} />
-            <DetailRow label={t('medicines.reviewStatus')} value={t('medicines.reviewStatusNeedsReview')} />
           </dl>
           <p className="mt-3 text-xs text-muted-foreground">
             {MEDICINE_META.dataset_name} · {MEDICINE_META.source_version}
