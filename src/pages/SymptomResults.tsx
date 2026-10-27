@@ -161,7 +161,7 @@ export default function SymptomResults() {
 
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle className="text-base">{t('medicines.translateToTwi')}</CardTitle>
+          <CardTitle className="text-base">{t('medicines.translationHeading')}</CardTitle>
         </CardHeader>
         <CardContent>
           <TranslateSection content={guidanceTextEn} />

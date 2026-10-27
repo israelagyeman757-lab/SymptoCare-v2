@@ -11,12 +11,20 @@ const corsHeaders = {
 
 interface TranslationResult {
   sourceLanguage: "en";
-  targetLanguage: "tw";
+  targetLanguage: string;
   translatedText: string;
   status: "available" | "unavailable";
   reviewed: boolean;
   reason?: string;
 }
+
+const TARGETS: Record<string, string> = {
+  tw: "twi",
+  ee: "ewe",
+  gaa: "gaa",
+  fat: "fat",
+  dag: "dag",
+};
 
 serve(async (req: Request) => {
   if (!allowedOrigin) return json({ error: "ALLOWED_ORIGIN is not configured" }, 503);
@@ -29,13 +37,16 @@ serve(async (req: Request) => {
   }
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
+  let target = "tw";
+
   try {
     const body = await req.json();
     const text = typeof body?.text === "string" ? body.text.trim() : "";
-    const target = typeof body?.target_lang === "string" ? body.target_lang : "tw";
+    target = typeof body?.target_lang === "string" ? body.target_lang : "tw";
+    const targetCode = TARGETS[target];
 
     if (!text) return json({ error: "Missing 'text'" }, 400);
-    if (target !== "tw") return json({ error: "Unsupported target language" }, 400);
+    if (!targetCode) return json({ error: "Unsupported target language" }, 400);
     if (text.length > 1000) return json({ error: "Text too long" }, 413);
 
     const authorization = req.headers.get("Authorization") ?? "";
@@ -55,7 +66,7 @@ serve(async (req: Request) => {
     const key = Deno.env.get("GHANA_NLP_KEY");
     if (!key) {
       return json(
-        { sourceLanguage: "en", targetLanguage: "tw", translatedText: "", status: "unavailable", reviewed: false, reason: "not_configured" },
+        { sourceLanguage: "en", targetLanguage: target, translatedText: "", status: "unavailable", reviewed: false, reason: "not_configured" },
         200
       );
     }
@@ -76,14 +87,14 @@ serve(async (req: Request) => {
         "Content-Type": "application/json",
         "Ocp-Apim-Subscription-Key": key,
       },
-      body: JSON.stringify({ in: text, lang: "eng-twi" }),
+      body: JSON.stringify({ in: text, lang: `eng-${targetCode}` }),
       signal: AbortSignal.timeout(15000),
     });
 
     if (!upstream.ok) {
       console.error("translate-content upstream status", upstream.status, (await upstream.text()).slice(0, 300));
       return json(
-        { sourceLanguage: "en", targetLanguage: "tw", translatedText: "", status: "unavailable", reviewed: false, reason: `upstream_${upstream.status}` },
+        { sourceLanguage: "en", targetLanguage: target, translatedText: "", status: "unavailable", reviewed: false, reason: `upstream_${upstream.status}` },
         200
       );
     }
@@ -103,14 +114,14 @@ serve(async (req: Request) => {
 
     if (!translatedText.trim()) {
       return json(
-        { sourceLanguage: "en", targetLanguage: "tw", translatedText: "", status: "unavailable", reviewed: false, reason: "empty_result" },
+        { sourceLanguage: "en", targetLanguage: target, translatedText: "", status: "unavailable", reviewed: false, reason: "empty_result" },
         200
       );
     }
 
     return json({
       sourceLanguage: "en",
-      targetLanguage: "tw",
+      targetLanguage: target,
       translatedText: translatedText.trim(),
       status: "available",
       reviewed: false,
@@ -118,7 +129,7 @@ serve(async (req: Request) => {
   } catch {
     console.error("translate-content request failed");
     return json(
-      { sourceLanguage: "en", targetLanguage: "tw", translatedText: "", status: "unavailable", reviewed: false, reason: "internal_error" },
+      { sourceLanguage: "en", targetLanguage: target, translatedText: "", status: "unavailable", reviewed: false, reason: "internal_error" },
       200
     );
   }

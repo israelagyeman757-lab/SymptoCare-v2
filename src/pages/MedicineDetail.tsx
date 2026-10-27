@@ -118,7 +118,7 @@ export default function MedicineDetail() {
 
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle className="text-base">{t('medicines.translateToTwi')}</CardTitle>
+          <CardTitle className="text-base">{t('medicines.translationHeading')}</CardTitle>
         </CardHeader>
         <CardContent>
           <TranslateSection content={descriptionEn} />

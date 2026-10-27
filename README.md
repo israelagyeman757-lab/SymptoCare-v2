@@ -13,7 +13,7 @@ Live deployment: **https://symptocare-nu.vercel.app**
 - Deterministic symptom guidance with prominent emergency warnings (no fabricated confidence scores)
 - Free-text symptom assistant: type your symptoms, the AI asks a few follow-up questions, then reports one of the same urgency levels (emergency / urgent / routine / self-care) with the checklist kept below as a fallback
 - Medicine search over a local Ghana NHIS Medicines List dataset with full provenance
-- "Translate to Twi" for medicine details, symptom results, and education content (server-side key)
+- "Translate" for medicine details, symptom results, and education content into Twi, Ewe, Ga, Fante or Dagbani via a language picker (server-side key)
 - Appointment **requests** (requests, not confirmed bookings), stored in the database with Row-Level Security
 - Region → clinic selection for appointments (clinics load from the `clinics` table; a region must be chosen before a clinic)
 - Optional "Search the web" for symptom guidance and medicine details via a server-side Brave Search call (results are labelled as unreviewed web content)
@@ -50,7 +50,7 @@ variables — anything prefixed with `VITE_` is bundled into the browser.
 Set with the Supabase CLI (`supabase secrets set NAME=value`) or in the dashboard:
 
 ```bash
-GHANA_NLP_KEY=...        # GhanaNLP Ocp-Apim-Subscription-Key (required for Twi translation)
+GHANA_NLP_KEY=...        # GhanaNLP Ocp-Apim-Subscription-Key (required for translation)
 BRAVE_SEARCH_API_KEY=... # Brave Search API key (required for "Search the web")
 GEMMA_API_KEY=...        # Google AI API key (Gemma text + vision: gemma-chat, medicine-photo, symptom-chat)
 ALLOWED_ORIGIN=https://yourapp.example   # required by every Edge Function for CORS
@@ -74,6 +74,15 @@ function returns an honest "unavailable" result instead of guessing.
 `ALLOWED_ORIGIN` is the exact origin the frontend is served from. Requests from any
 other origin are rejected by the Edge Functions. `SUPABASE_URL` and
 `SUPABASE_SERVICE_ROLE_KEY` are provided automatically by the Supabase runtime.
+
+## Translation languages
+
+The picker offers the Khaya v2 pairs that actually work: `eng-twi`, `eng-ewe`,
+`eng-gaa`, `eng-fat`, `eng-dag`. **Hausa and Nzema are not offered** — Khaya
+rejects `eng-hau` and `eng-nzi` with `UNSUPPORTED_LANGUAGE_PAIR`.
+
+The interface language switcher remains English/Twi; the new languages apply to
+content translation, not to the UI dictionary (which is pending native review).
 
 ## Supabase setup
 
