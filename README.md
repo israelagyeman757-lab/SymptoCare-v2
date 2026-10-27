@@ -4,6 +4,8 @@ A Ghana-focused healthcare information and education web app in English and Twi.
 SymptoCare is an **educational and navigation tool** — it is not a substitute for a
 doctor, pharmacist, or emergency services, and it never prescribes medicine.
 
+Live deployment: **https://symptocare-nu.vercel.app**
+
 ## Features
 
 - English/Twi localisation across the whole interface
@@ -84,7 +86,8 @@ other origin are rejected by the Edge Functions. `SUPABASE_URL` and
    - `translation_rate_limits` (per-user hourly counter for Twi translation),
    - `clinics` plus `region`/`clinic_id` on appointment requests,
    - `search_rate_limits` (per-user hourly counter for web search),
-   - `gemma_rate_limits` (per-user hourly counter for the "Ask" assistant).
+   - `gemma_rate_limits` (per-user hourly counter for the "Ask" assistant),
+   - `symptom_rate_limits` (per-user hourly counter for the free-text symptom assistant).
 3. Configure **Authentication** in the dashboard:
    - Site URL / redirect URLs (e.g. `https://yourapp.example` and its `/auth` path)
    - Email provider (SMTP) for password-reset and confirmation emails
