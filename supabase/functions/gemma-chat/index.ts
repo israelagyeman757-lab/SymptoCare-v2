@@ -89,10 +89,18 @@ serve(async (req: Request) => {
 
     const primaryModel = Deno.env.get("GEMMA_MODEL") ?? "gemini-3.5-flash-lite";
     const fallbackModel = Deno.env.get("GEMMA_FALLBACK_MODEL") ?? "gemma-4-26b-a4b-it";
+    const secondFallbackModel = Deno.env.get("GEMMA_SECOND_FALLBACK_MODEL") ?? "gemini-3.1-flash-lite";
 
     let answer = "";
-    for (const model of [primaryModel, fallbackModel]) {
-      answer = await requestAnswer(model, key, prompt, language);
+    const deadline = Date.now() + 55000;
+    for (const model of [primaryModel, fallbackModel, secondFallbackModel]) {
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const remaining = deadline - Date.now();
+        if (remaining < 3000) break;
+        answer = await requestAnswer(model, key, prompt, language, Math.min(20000, remaining));
+        if (answer) break;
+        await delay(600);
+      }
       if (answer) break;
     }
 
@@ -111,7 +119,8 @@ async function requestAnswer(
   model: string,
   key: string,
   prompt: string,
-  language: { name: string; description: string }
+  language: { name: string; description: string },
+  timeoutMs: number
 ): Promise<string> {
   try {
     const endpoint =
@@ -127,9 +136,9 @@ async function requestAnswer(
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemInstruction(language) }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.4, maxOutputTokens: 1200 },
+        generationConfig: { temperature: 0.4, maxOutputTokens: 1600 },
       }),
-      signal: AbortSignal.timeout(45000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
 
     if (!upstream.ok) {
@@ -158,4 +167,8 @@ function json(payload: unknown, status: number): Response {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

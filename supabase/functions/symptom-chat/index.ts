@@ -141,10 +141,18 @@ serve(async (req: Request) => {
 
     const primaryModel = Deno.env.get("SYMPTOM_CHAT_MODEL") ?? "gemini-3.5-flash-lite";
     const fallbackModel = Deno.env.get("SYMPTOM_CHAT_FALLBACK_MODEL") ?? "gemma-4-26b-a4b-it";
+    const secondFallbackModel = Deno.env.get("SYMPTOM_CHAT_SECOND_FALLBACK_MODEL") ?? "gemini-3.1-flash-lite";
 
     let assessment: Assessment | null = null;
-    for (const model of [primaryModel, fallbackModel]) {
-      assessment = await callModel(model, messages, key, language);
+    const deadline = Date.now() + 55000;
+    for (const model of [primaryModel, fallbackModel, secondFallbackModel]) {
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const remaining = deadline - Date.now();
+        if (remaining < 3000) break;
+        assessment = await callModel(model, messages, key, language, Math.min(20000, remaining));
+        if (assessment) break;
+        await delay(600);
+      }
       if (assessment) break;
     }
 
@@ -205,7 +213,8 @@ async function callModel(
   model: string,
   messages: ChatMessage[],
   key: string,
-  language: { name: string; description: string }
+  language: { name: string; description: string },
+  timeoutMs: number
 ): Promise<Assessment | null> {
   try {
     const endpoint =
@@ -220,12 +229,12 @@ async function callModel(
         contents: messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
         generationConfig: {
           temperature: 0.2,
-          maxOutputTokens: 1500,
+          maxOutputTokens: 1600,
           responseMimeType: "application/json",
           responseSchema: RESPONSE_SCHEMA,
         },
       }),
-      signal: AbortSignal.timeout(25000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
 
     if (!upstream.ok) {
@@ -261,4 +270,8 @@ function json(payload: unknown, status: number): Response {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
