@@ -1,4 +1,5 @@
 import type { AppLanguage } from '@/i18n/translations';
+import { generatedTriage } from '@/i18n/generated/languages';
 
 export type Urgency = 'emergency' | 'urgent' | 'routine' | 'self_care_information';
 
@@ -343,5 +344,6 @@ export function evaluateTriage(input: TriageInput): TriageResult {
 }
 
 export function pickText(text: LocalizedText, lang: AppLanguage): string {
-  return text[lang];
+  if (lang === 'en' || lang === 'tw') return text[lang];
+  return generatedTriage[lang]?.[text.en] ?? text.en;
 }

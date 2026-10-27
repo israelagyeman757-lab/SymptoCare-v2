@@ -81,8 +81,19 @@ The picker offers the Khaya v2 pairs that actually work: `eng-twi`, `eng-ewe`,
 `eng-gaa`, `eng-fat`, `eng-dag`. **Hausa and Nzema are not offered** — Khaya
 rejects `eng-hau` and `eng-nzi` with `UNSUPPORTED_LANGUAGE_PAIR`.
 
-The interface language switcher remains English/Twi; the new languages apply to
-content translation, not to the UI dictionary (which is pending native review).
+Translation goes through Khaya first. If Khaya is unavailable (for example when
+the subscription is out of call volume) the function falls back to a light Google
+model that is reserved for translation, so the chat models keep their own quota:
+
+```bash
+TRANSLATE_MODEL=gemini-3.1-flash-lite
+TRANSLATE_FALLBACK_MODEL=gemini-3.1-flash-lite-preview
+```
+
+The interface language switcher offers English, Twi, Ewe, Ga, Fante and Dagbani.
+English and Twi are hand-maintained; the other four come from
+`src/i18n/generated/languages.ts`, which is **machine-generated and unreviewed**,
+with any missing key falling back to English.
 
 ## Supabase setup
 

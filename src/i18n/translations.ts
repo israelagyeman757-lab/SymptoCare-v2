@@ -1,4 +1,6 @@
-export type AppLanguage = 'en' | 'tw';
+import { generatedUi } from './generated/languages';
+
+export type AppLanguage = 'en' | 'tw' | 'ee' | 'gaa' | 'fat' | 'dag';
 
 export type TranslationKey = keyof typeof translations['en'];
 
@@ -734,7 +736,24 @@ export const translations = {
   },
 } as const;
 
-export const languageNames: Record<AppLanguage, { en: string; tw: string }> = {
-  en: { en: 'English', tw: 'Borɔfo' },
-  tw: { en: 'Twi', tw: 'Twi' },
+export const languageNames: Record<AppLanguage, string> = {
+  en: 'English',
+  tw: 'Twi',
+  ee: 'Ewe',
+  gaa: 'Ga',
+  fat: 'Fante',
+  dag: 'Dagbani',
+};
+
+/**
+ * Ewe, Ga, Fante and Dagbani are machine translations (unreviewed). Any key a
+ * generated dictionary is missing falls back to English rather than blank text.
+ */
+export const dictionaries: Record<AppLanguage, Record<TranslationKey, string>> = {
+  en: translations.en,
+  tw: translations.tw,
+  ee: { ...translations.en, ...generatedUi.ee } as Record<TranslationKey, string>,
+  gaa: { ...translations.en, ...generatedUi.gaa } as Record<TranslationKey, string>,
+  fat: { ...translations.en, ...generatedUi.fat } as Record<TranslationKey, string>,
+  dag: { ...translations.en, ...generatedUi.dag } as Record<TranslationKey, string>,
 };

@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useAppStore } from '@/store/useAppStore';
-import { translations, type AppLanguage, type TranslationKey } from './translations';
+import { dictionaries, type AppLanguage, type TranslationKey } from './translations';
 
 function interpolate(template: string, vars?: Record<string, string | number>): string {
   if (!vars) return template;
@@ -10,7 +10,7 @@ function interpolate(template: string, vars?: Record<string, string | number>): 
 }
 
 export function translate(lang: AppLanguage, key: TranslationKey, vars?: Record<string, string | number>): string {
-  return interpolate(translations[lang][key], vars);
+  return interpolate(dictionaries[lang][key], vars);
 }
 
 export function useI18n() {

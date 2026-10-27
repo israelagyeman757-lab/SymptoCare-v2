@@ -1,4 +1,5 @@
 import { supabase, supabaseConfigured } from '@/integrations/supabase/client';
+import type { AppLanguage } from '@/i18n/translations';
 
 /**
  * Best-effort persistence of profile fields into the `profiles` table.
@@ -6,7 +7,7 @@ import { supabase, supabaseConfigured } from '@/integrations/supabase/client';
  */
 export async function updateProfile(fields: {
   displayName?: string;
-  preferredLanguage?: 'en' | 'tw';
+  preferredLanguage?: AppLanguage;
 }): Promise<{ ok: boolean }> {
   if (!supabaseConfigured || !supabase) return { ok: false };
   const {

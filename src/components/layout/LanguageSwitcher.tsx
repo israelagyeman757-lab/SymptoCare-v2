@@ -8,7 +8,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
   const { language, setLanguage } = useI18n();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const langs: AppLanguage[] = ['en', 'tw'];
+  const langs: AppLanguage[] = ['en', 'tw', 'ee', 'gaa', 'fat', 'dag'];
 
   useEffect(() => {
     if (!open) return;
@@ -39,7 +39,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         className="flex min-h-9 cursor-pointer items-center gap-1.5 rounded-md border border-input bg-card px-2.5 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
       >
         <Languages className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-        <span>{languageNames[language].en}</span>
+        <span>{languageNames[language]}</span>
         <ChevronDown
           className={cn('h-4 w-4 text-muted-foreground transition-transform duration-150', open && 'rotate-180')}
           aria-hidden="true"
@@ -65,7 +65,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
                   language === lang ? 'text-primary' : 'text-foreground hover:bg-muted'
                 )}
               >
-                <span>{languageNames[lang].en}</span>
+                <span>{languageNames[lang]}</span>
                 {language === lang && <Check className="h-4 w-4" aria-hidden="true" />}
               </button>
             </li>

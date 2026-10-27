@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 export default function Settings() {
   const { t, language, setLanguage } = useI18n();
-  const langs: AppLanguage[] = ['en', 'tw'];
+  const langs: AppLanguage[] = ['en', 'tw', 'ee', 'gaa', 'fat', 'dag'];
 
   const chooseLanguage = (lang: AppLanguage) => {
     setLanguage(lang);
@@ -43,8 +43,7 @@ export default function Settings() {
                 )}
               >
                 <span>
-                  {languageNames[lang].en}
-                  <span className="block text-xs font-normal text-muted-foreground">{languageNames[lang].tw}</span>
+                  {languageNames[lang]}
                 </span>
                 <span
                   aria-hidden="true"

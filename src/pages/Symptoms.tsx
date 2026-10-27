@@ -204,7 +204,7 @@ export default function Symptoms() {
                         : 'border-input bg-card hover:bg-muted'
                     )}
                   >
-                    {opt[language]}
+                    {pickText(opt, language)}
                   </button>
                 ))}
               </div>
@@ -265,7 +265,7 @@ export default function Symptoms() {
                 {needsDuration && durationDays && (
                   <li className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-accent" aria-hidden="true" />
-                    {t('symptoms.durationTitle')} — <strong>{durationOptions.find((o) => o.id === durationDays)?.[language]}</strong>
+                    {t('symptoms.durationTitle')} — <strong>{(() => { const opt = durationOptions.find((o) => o.id === durationDays); return opt ? pickText(opt, language) : ''; })()}</strong>
                   </li>
                 )}
                 {needsChildQuestion && childUnderFive !== null && (
