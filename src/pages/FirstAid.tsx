@@ -3,10 +3,8 @@ import { HeartPulse, PhoneCall } from 'lucide-react';
 import { FIRST_AID_TOPICS } from '@/data/education';
 import { pickText } from '@/lib/triage';
 import { useI18n } from '@/i18n/useI18n';
-import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TranslateSection } from '@/components/shared/TranslateSection';
 
 export default function FirstAid() {
   const { t, language } = useI18n();
@@ -25,13 +23,10 @@ export default function FirstAid() {
         {FIRST_AID_TOPICS.map((topic) => (
           <Card key={topic.id}>
             <CardHeader>
-              <div className="flex items-start justify-between gap-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <HeartPulse className="h-5 w-5 shrink-0 text-emergency" aria-hidden="true" />
-                  {pickText(topic.title, language)}
-                </CardTitle>
-                <Badge variant="warning">{t('common.reviewPending')}</Badge>
-              </div>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <HeartPulse className="h-5 w-5 shrink-0 text-emergency" aria-hidden="true" />
+                {pickText(topic.title, language)}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="leading-relaxed text-muted-foreground">{pickText(topic.intro, language)}</p>
@@ -48,19 +43,13 @@ export default function FirstAid() {
               <Alert variant="warning">
                 <p>{pickText(topic.warning, language)}</p>
               </Alert>
-              <div className="border-t pt-4">
-                <TranslateSection
-                  content={[pickText(topic.title, 'en'), pickText(topic.intro, 'en'), ...topic.steps.map((s) => s.en)].join(' ')}
-                />
-              </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
       <Alert className="mt-6">
-        <p>{t('firstaid.reviewNote')}</p>
-        <p className="mt-1">{t('firstaid.notCertified')}</p>
+        <p>{t('firstaid.notCertified')}</p>
       </Alert>
 
       <Link

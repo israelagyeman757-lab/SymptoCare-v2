@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown, Languages } from 'lucide-react';
 import { useI18n } from '@/i18n/useI18n';
 import { languageNames, type AppLanguage } from '@/i18n/translations';
+import { updateProfile } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 
 export function LanguageSwitcher({ className }: { className?: string }) {
@@ -58,6 +59,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
                 type="button"
                 onClick={() => {
                   setLanguage(lang);
+                  void updateProfile({ preferredLanguage: lang });
                   setOpen(false);
                 }}
                 className={cn(

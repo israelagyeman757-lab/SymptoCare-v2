@@ -2,10 +2,8 @@ import { BookOpen, ExternalLink } from 'lucide-react';
 import { EDUCATION_TOPICS } from '@/data/education';
 import { pickText } from '@/lib/triage';
 import { useI18n } from '@/i18n/useI18n';
-import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TranslateSection } from '@/components/shared/TranslateSection';
 
 export default function Education() {
   const { t, language } = useI18n();
@@ -23,13 +21,10 @@ export default function Education() {
         {EDUCATION_TOPICS.map((topic) => (
           <Card key={topic.id}>
             <CardHeader>
-              <div className="flex items-start justify-between gap-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <BookOpen className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-                  {pickText(topic.title, language)}
-                </CardTitle>
-                <Badge variant="warning">{t('common.reviewPending')}</Badge>
-              </div>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <BookOpen className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                {pickText(topic.title, language)}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="leading-relaxed text-muted-foreground">{pickText(topic.summary, language)}</p>
@@ -53,11 +48,6 @@ export default function Education() {
                   <span className="sr-only">{topic.sourceName}</span>
                 </a>
               </p>
-              <div className="border-t pt-4">
-                <TranslateSection
-                  content={[pickText(topic.title, 'en'), pickText(topic.summary, 'en'), ...topic.points.map((p) => p.en)].join(' ')}
-                />
-              </div>
             </CardContent>
           </Card>
         ))}
