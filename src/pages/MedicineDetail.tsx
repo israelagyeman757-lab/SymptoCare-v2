@@ -70,7 +70,6 @@ export default function MedicineDetail() {
           <div className="mt-2 flex flex-wrap gap-2">
             {record.dosage_form && <Badge variant="secondary">{record.dosage_form}</Badge>}
             {record.strength && <Badge variant="muted">{record.strength}</Badge>}
-            <Badge variant="warning">{t('medicines.reviewStatusNeedsReview')}</Badge>
           </div>
         </div>
       </div>
