@@ -6,7 +6,7 @@ import { updateProfile } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 
 export function LanguageSwitcher({ className }: { className?: string }) {
-  const { language, setLanguage } = useI18n();
+  const { t, language, setLanguage } = useI18n();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const langs: AppLanguage[] = ['en', 'tw', 'ee', 'gaa', 'fat', 'dag'];
@@ -36,7 +36,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label="App language"
+        aria-label={t('common.language')}
         className="flex min-h-9 cursor-pointer items-center gap-1.5 rounded-md border border-input bg-card px-2.5 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
       >
         <Languages className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
@@ -50,7 +50,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       {open && (
         <ul
           role="listbox"
-          aria-label="App language"
+          aria-label={t('common.language')}
           className="absolute right-0 z-50 mt-1 w-40 overflow-hidden rounded-md border bg-card p-1 shadow-md"
         >
           {langs.map((lang) => (

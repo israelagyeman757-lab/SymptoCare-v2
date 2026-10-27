@@ -41,7 +41,6 @@ export const translations = {
 
     // Navigation
     'nav.home': 'Home',
-    'nav.dashboard': 'Dashboard',
     'nav.symptoms': 'Symptoms',
     'nav.medicines': 'Medicines',
     'nav.appointments': 'Appointments',
@@ -50,7 +49,6 @@ export const translations = {
     'nav.emergency': 'Emergency',
     'nav.profile': 'Profile',
     'nav.settings': 'Settings',
-    'nav.menu': 'Menu',
     'nav.main': 'Main navigation',
 
     // Landing
@@ -121,7 +119,6 @@ export const translations = {
     'dashboard.howAreYou': 'How are you feeling today?',
     'dashboard.continueTitle': 'Continue where you left off',
     'dashboard.quickAccess': 'Quick access',
-    'dashboard.symptoms': 'Symptom checker',
     'dashboard.emergency': 'Emergency',
     'dashboard.appointments': 'My appointments',
     'dashboard.medicines': 'Medicine search',
@@ -172,7 +169,7 @@ export const translations = {
     'symptomChat.assistant': 'Assistant',
     'symptomChat.restart': 'Start over',
     'symptomChat.error': 'The symptom assistant is unavailable right now. If this could be an emergency, call 112 or go to the nearest health facility. You can also use the checklist below.',
-    'symptomChat.englishOnly': 'The assistant replies in English while the Twi wording is under review.',
+    'symptomChat.englishOnly': 'The assistant replies in English while local-language wording is still under review.',
     'symptomChat.disclaimer': 'This is educational guidance from an AI assistant, not a diagnosis. A health worker decides what care you need.',
     'symptomChat.optionsTitle': 'Or check symptoms from a list',
     'symptomChat.optionsHint': 'Answer fixed questions step by step instead of typing.',
@@ -397,7 +394,6 @@ export const translations = {
 
     // Navigation
     'nav.home': 'Fie',
-    'nav.dashboard': 'Dashboard',
     'nav.symptoms': 'Yareɛ nsɛnkyerɛnne',
     'nav.medicines': 'Aduru',
     'nav.appointments': 'Nhyiamu',
@@ -406,7 +402,6 @@ export const translations = {
     'nav.emergency': 'Amanehunu',
     'nav.profile': 'Me ho nsɛm',
     'nav.settings': 'Nhyehyɛe',
-    'nav.menu': 'Menu',
     'nav.main': 'Ɔkwan titire',
 
     // Landing
@@ -477,7 +472,6 @@ export const translations = {
     'dashboard.howAreYou': 'Wo ho te sɛn ɛnnɛ?',
     'dashboard.continueTitle': 'Toa so baabi a wugyaeɛ',
     'dashboard.quickAccess': 'Ntɛm kwan',
-    'dashboard.symptoms': 'Yareɛ nsɛnkyerɛnne hwɛfo',
     'dashboard.emergency': 'Amanehunu',
     'dashboard.appointments': 'Me nhyiamu',
     'dashboard.medicines': 'Aduru hwehwɛ',
@@ -528,7 +522,7 @@ export const translations = {
     'symptomChat.assistant': 'Ɔboafo',
     'symptomChat.restart': 'Fi ase biom',
     'symptomChat.error': 'Ɔboafo no nni hɔ seesei. Sɛ eyi betumi ayɛ amanehunu a, frɛ 112 anaasɛ kɔ ayaresabea a ɛbɛn hɔ. Wobetumi nso afa nhyehyɛe a ɛwɔ ase ha no so.',
-    'symptomChat.englishOnly': 'Ɔboafo no bua Borɔfo mu berɛ a wɔda so rehwɛ Twi nsɛm no.',
+    'symptomChat.englishOnly': 'Ɔboafo no bua Borɔfo mu berɛ a wɔda so rehwɛ kasa no nsɛm.',
     'symptomChat.disclaimer': 'Eyi yɛ adesua akwankyerɛ a ɛfiri AI ɔboafo hɔ, ɛnyɛ yareɛ ho ɔkasa. Ɔyaresa ho adwumayɛfo na ɛkyerɛ ayaresa a ehia.',
     'symptomChat.optionsTitle': 'Anaasɛ hwɛ nsɛnkyerɛnne wɔ nnwuma mu',
     'symptomChat.optionsHint': 'Bua nsɛmmisa a ɛnsesa anammɔn mu sen sɛ wobɛkyerɛw.',
